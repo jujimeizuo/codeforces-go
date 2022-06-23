@@ -14,6 +14,8 @@
 
 ## 算法目录
 
+[不了解 Go？快速入门教程](https://gobyexample-cn.github.io/)
+
 - 数据结构
   - [单调栈 monotone_stack.go](/copypasta/monotone_stack.go)
   - [单调队列 monotone_queue.go](/copypasta/monotone_queue.go)
@@ -126,6 +128,9 @@
     - 圆与矩形
     - 最近点对
     - 多边形与点
+      - 判断点在凸多边形内 O(log n)
+      - 判断点在任意多边形内
+        - 转角法（统计绕数）
     - 凸包
     - 最远点对
       - 旋转卡壳

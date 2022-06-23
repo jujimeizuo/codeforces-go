@@ -262,20 +262,70 @@ func _(min, max func(int, int) int, abs func(int) int) {
 	//       需要一些转换技巧 https://codeforces.com/problemset/problem/1082/E
 	// 多个小数组合并 https://codeforces.com/problemset/problem/75/D
 	//    这题做法需要用到上面说到的第二种思路
-	maxSubArraySum := func(a []int) int {
-		if len(a) == 0 {
+	maxSubarraySum := func(a []int) int {
+		if len(a) == 0 { // 根据题意返回
 			return 0
 		}
-		dp, maxSubSum := a[0], a[0] // int64
+		maxS, sum := a[0], a[0] // int64
 		for _, v := range a[1:] {
-			dp = max(dp, 0) + v
-			maxSubSum = max(maxSubSum, dp)
+			sum = max(sum, 0) + v
+			maxS = max(maxS, sum)
 		}
-		return max(maxSubSum, 0) // 若不允许非空，返回 maxSum
+		if maxS < 0 { // 根据题意返回
+			//return 0
+		}
+		return maxS
+	}
+
+	// 除了返回最大子段和外，还返回最大子段和对应的子段 [l,r]
+	// https://codeforces.com/contest/1692/problem/H
+	maxSubarraySumWithRange := func(a []int) (maxS, l, r int) {
+		if len(a) == 0 { // 根据题意返回
+			return 0, -1, -1
+		}
+		// int64
+		maxS = a[0] // 注意 l 和 r 默认为 0，即 a[:1]
+		for i, sum, st := 1, a[0], 0; i < len(a); i++ {
+			if sum < 0 {
+				sum, st = 0, i // 重新开始
+			}
+			sum += a[i]
+			if sum > maxS {
+				maxS, l, r = sum, st, i
+			}
+		}
+		if maxS < 0 { // 根据题意返回
+			//return 0, -1, -1
+		}
+		return
+	}
+
+	// 维护前缀和的最小值的写法
+	// https://codeforces.com/contest/1692/problem/H
+	maxSubarraySumWithRange = func(a []int) (maxS, l, r int) {
+		if len(a) == 0 { // 根据题意返回
+			return 0, -1, -1
+		}
+		// int64
+		maxS = a[0] // 注意 l 和 r 默认为 0，即 a[:1]
+		sum, minS, minI := 0, 0, -1
+		for i, v := range a {
+			sum += v
+			if sum-minS > maxS {
+				maxS, l, r = sum-minS, minI+1, i
+			}
+			if sum < minS {
+				minS, minI = sum, i
+			}
+		}
+		if maxS < 0 { // 根据题意返回
+			//return 0, -1, -1
+		}
+		return
 	}
 
 	// 最大两段子段和（两段必须间隔至少 gap 个数）
-	maxTwoSubArraySum := func(a []int, gap int) int {
+	maxTwoSubarraySum := func(a []int, gap int) int {
 		// 注意下界
 		n := len(a)
 		suf := make([]int, n) // int64
@@ -297,7 +347,7 @@ func _(min, max func(int, int) int, abs func(int) int) {
 		return ans
 	}
 
-	maxSubArrayAbsSum := func(a []int) int {
+	maxSubarrayAbsSum := func(a []int) int {
 		if len(a) == 0 {
 			return 0
 		}
@@ -844,14 +894,35 @@ func _(min, max func(int, int) int, abs func(int) int) {
 	// EXTRA: 离散化背包 https://codeforces.com/contest/366/submission/61452111
 	zeroOneKnapsack := func(values, weights []int, maxW int) int {
 		dp := make([]int, maxW+1) // int64
-		for i, v := range values {
-			w := weights[i]
+		for i, w := range weights {
+			v := values[i]
 			// 这里 j 的初始值可以优化成前 i 个物品的重量之和（但不能超过 maxW）
 			for j := maxW; j >= w; j-- {
 				dp[j] = max(dp[j], dp[j-w]+v)
 			}
 		}
 		return dp[maxW]
+	}
+
+	// 0-1 背包 EXTRA: 恰好装满
+	// https://leetcode.cn/contest/sf-tech/problems/cINqyA/
+	zeroOneKnapsackExactlyFull := func(values, weights []int, maxW int) {
+		dp := make([]int, maxW+1) // int64
+		for i := range dp {
+			dp[i] = -1e9 // -1e18
+		}
+		dp[0] = 0
+		for i, w := range weights {
+			v := values[i]
+			for j := maxW; j >= w; j-- {
+				dp[j] = max(dp[j], dp[j-w]+v)
+			}
+		}
+		for i := maxW; i >= 0; i-- {
+			if dp[i] >= 0 { // 能恰好装满 i，此时背包物品价值和的最大值是 dp[i]
+				// ...
+			}
+		}
 	}
 
 	// 0-1 背包 EXTRA: 至少装入重量和为 maxW 的物品，求价值和的最小值 https://www.luogu.com.cn/problem/P4377
@@ -2465,15 +2536,15 @@ func _(min, max func(int, int) int, abs func(int) int) {
 
 	_ = []interface{}{
 		prefixSumDP, mapDP,
-		maxSubArraySum, maxTwoSubArraySum, maxSubArrayAbsSum,
+		maxSubarraySum, maxSubarraySumWithRange, maxTwoSubarraySum, maxSubarrayAbsSum,
 		maxAlternatingSumDP, maxAlternatingSumGreedy,
 		minCostSorted,
 		lcs, lcsPath, longestPalindromeSubsequence,
 		lisSlow, lis, lisAll, cntLis, lcis, lcisPath, countLIS,
-		distinctSubsequence, distinctSubsequenceWithFixedLength,
+		distinctSubsequence,
 		minPalindromeCut,
 
-		zeroOneKnapsack, zeroOneKnapsackAtLeastFillUp, zeroOneWaysToSum, zeroOneKnapsackLexicographicallySmallestResult, zeroOneKnapsackByValue,
+		zeroOneKnapsack, zeroOneKnapsackExactlyFull, zeroOneKnapsackAtLeastFillUp, zeroOneWaysToSum, zeroOneKnapsackLexicographicallySmallestResult, zeroOneKnapsackByValue,
 		unboundedKnapsack, unboundedWaysToSum,
 		boundedKnapsack, boundedKnapsackBinary,
 		groupKnapsack, groupKnapsackFill,
@@ -2489,7 +2560,7 @@ func _(min, max func(int, int) int, abs func(int) int) {
 
 		cht,
 
-		diameter, countDiameter, countVerticesOnDiameter,
+		diameter, countDiameter, countVerticesOnDiameter, maxPathSum,
 		maxIndependentSetOfTree, minVertexCoverOfTree, minDominatingSetOfTree, maxMatchingOfTree,
 		sumOfDistancesInTree, rerootDP,
 		andPathSum, xorPathSum, xorPathXorSum,

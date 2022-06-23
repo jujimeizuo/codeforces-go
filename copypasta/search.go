@@ -545,7 +545,9 @@ func searchCollection() {
 		return perm
 	}
 
-	//
+	// 迭代加深搜索
+	// 限制 DFS 深度（不断提高搜索深度）
+	// http://poj.org/problem?id=2248
 
 	// 折半枚举/双向搜索 Meet in the middle
 	// https://codeforces.com/problemset/problem/327/E
@@ -642,8 +644,6 @@ func searchCollection() {
 		}
 		return
 	}
-
-	//
 
 	// 剪枝:
 	// todo https://blog.csdn.net/weixin_43914593/article/details/104613920 算法竞赛专题解析（7）：搜索进阶(2)--剪枝
@@ -905,6 +905,7 @@ func _(min, max func(int, int) int) {
 
 	// 第一排在左上，最后一排在右下
 	// 每排从左下到右上
+	// LC498 https://leetcode.cn/problems/diagonal-traverse/
 	loopAntiDiagonal := func(n, m int) {
 		for s := 0; s < n+m-1; s++ {
 			l := max(0, s-n+1)
