@@ -6,6 +6,7 @@ import (
 	. "fmt"
 	"io"
 	"math"
+	"os"
 	"strconv"
 )
 
@@ -239,7 +240,7 @@ func fasterIO(_r io.Reader, _w io.Writer) {
 		p := len(tmpS)
 		for ; x > 0; x /= 10 {
 			p--
-			tmpS[p] = '0' + byte(x%10)
+			tmpS[p] = '0' | byte(x%10)
 		}
 		outS = append(outS, tmpS[p:]...)
 	}
@@ -253,13 +254,13 @@ func fasterIO(_r io.Reader, _w io.Writer) {
 		p := len(tmpS)
 		for ; x > 0; x /= 10 {
 			p--
-			tmpS[p] = '0' + byte(x%10)
+			tmpS[p] = '0' | byte(x%10)
 		}
 		outS = append(outS, tmpS[p:]...)
 	}
 
-	// 最后，直接调用 Printf 即可
-	Printf("%s", outS)
+	// 最后，直接用 os.Stdout 输出（最上面的 out 是不需要创建的）
+	os.Stdout.Write(outS)
 
 	_ = []interface{}{r, r1, rs, rsn, readStringUntilEOF, wInt}
 }
