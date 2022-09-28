@@ -15,6 +15,18 @@ import (
 // 从特殊到一般：尝试修改条件或缩小题目的数据范围，先研究某个特殊情况下的思路，然后再逐渐扩大数据范围来思考怎么改进算法
 // 重谈主定理及其证明 https://www.luogu.com.cn/blog/GJY-JURUO/master-theorem
 
+/* 贪心
+邻项交换
+LC1665 完成所有任务的最少初始能量 https://leetcode.cn/problems/minimum-initial-energy-to-finish-tasks/
+
+区间与点的最大匹配/覆盖问题
+https://www.luogu.com.cn/problem/P2887
+https://codeforces.com/problemset/problem/555/B
+
+难题
+2800 https://codeforces.com/problemset/problem/521/D
+*/
+
 // 异类双变量：固定某变量统计另一变量的 [0,n)
 //     EXTRA: 值域上的双变量，见 https://codeforces.com/contest/486/problem/D
 // 同类双变量①：固定 i 统计 [0,n)
@@ -33,6 +45,8 @@ import (
 
 // 利用前缀和实现巧妙的构造 https://www.luogu.com.cn/blog/duyi/qian-zhui-he
 // 邻项修改->前缀和->单项修改 https://codeforces.com/problemset/problem/1254/B2 https://ac.nowcoder.com/acm/contest/7612/C
+
+// 双指针：如果 left == right 时 while 一定为 false，则可以省略 while 中 left < right 的判断
 
 /* 横看成岭侧成峰
 转换为距离的众数 https://codeforces.com/problemset/problem/1365/C
@@ -81,10 +95,6 @@ https://codeforces.com/problemset/problem/1510/K
 https://leetcode-cn.com/problems/minimum-number-of-operations-to-reinitialize-a-permutation/
 */
 
-// 栈+懒删除 https://codeforces.com/problemset/problem/1000/F
-// 栈的应用 https://codeforces.com/problemset/problem/1092/D1
-//         https://codeforces.com/problemset/problem/1092/D2
-
 // 锻炼分类讨论能力 https://codeforces.com/problemset/problem/356/C
 
 // 「恰好」转换成「至少/至多」https://codeforces.com/problemset/problem/1188/C
@@ -123,14 +133,22 @@ func _() {
 	pow10 := func(x int) int64 { return int64(math.Pow10(x)) } // 不需要 round
 
 	// TIPS: dir4[i] 和 dir4[i^1] 互为相反方向
-	dir4 := []struct{ x, y int }{{-1, 0}, {1, 0}, {0, -1}, {0, 1}}                       // 上下左右
-	dir4g := []struct{ x, y int }{'W': {-1, 0}, 'E': {1, 0}, 'S': {0, -1}, 'N': {0, 1}}  // 西东南北（坐标系）
-	dir4g2 := []struct{ x, y int }{'W': {0, -1}, 'E': {0, 1}, 'S': {1, 0}, 'N': {-1, 0}} // 西东南北（矩阵）
-	dir4c := []struct{ x, y int }{'L': {-1, 0}, 'R': {1, 0}, 'D': {0, -1}, 'U': {0, 1}}  // 左右下上（坐标系）
-	dir4c2 := []struct{ x, y int }{'L': {0, -1}, 'R': {0, 1}, 'U': {-1, 0}, 'D': {1, 0}} // 左右下上（矩阵）
-	dir4R := []struct{ x, y int }{{1, 1}, {-1, 1}, {-1, -1}, {1, -1}}
-	dir8 := []struct{ x, y int }{{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}}  // 逆时针（坐标系）
-	dir8m := []struct{ x, y int }{{-1, -1}, {-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}} // 顺时针（矩阵）
+	dir4 := []struct{ x, y int }{{-1, 0}, {1, 0}, {0, -1}, {0, 1}} // 上下左右（网格）
+	// TIPS: dir4[i] 和 dir4[i^2] 互为相反方向
+	dir4 = []struct{ x, y int }{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}   // 右下左上（网格，顺时针）
+	dir4 = []struct{ x, y int }{{0, 1}, {-1, 0}, {0, -1}, {1, 0}}   // 右上左下（网格，逆时针）
+	dir4 = []struct{ x, y int }{{1, 0}, {0, -1}, {-1, 0}, {0, 1}}   // 右下左上（坐标系，顺时针）
+	dir4 = []struct{ x, y int }{{1, 0}, {0, 1}, {-1, 0}, {0, -1}}   // 右上左下（坐标系，逆时针）
+	dir4 = []struct{ x, y int }{{1, 1}, {-1, 1}, {-1, -1}, {1, -1}} // 斜向
+
+	dir4 = []struct{ x, y int }{'W': {-1, 0}, 'E': {1, 0}, 'S': {0, -1}, 'N': {0, 1}} // 西东南北（坐标系）
+	dir4 = []struct{ x, y int }{'W': {0, -1}, 'E': {0, 1}, 'S': {1, 0}, 'N': {-1, 0}} // 西东南北（网格）
+	dir4 = []struct{ x, y int }{'L': {-1, 0}, 'R': {1, 0}, 'D': {0, -1}, 'U': {0, 1}} // 左右下上（坐标系）
+	dir4 = []struct{ x, y int }{'L': {0, -1}, 'R': {0, 1}, 'U': {-1, 0}, 'D': {1, 0}} // 左右下上（网格）
+
+	dir8 := []struct{ x, y int }{{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}} // 逆时针（坐标系）
+	dir8 = []struct{ x, y int }{{-1, -1}, {-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}}  // 顺时针（矩阵）
+
 	perm3 := [][]int{{0, 1, 2}, {0, 2, 1}, {1, 0, 2}, {1, 2, 0}, {2, 0, 1}, {2, 1, 0}}
 	perm4 := [][]int{
 		{0, 1, 2, 3}, {0, 1, 3, 2}, {0, 2, 1, 3}, {0, 2, 3, 1}, {0, 3, 1, 2}, {0, 3, 2, 1},
@@ -193,6 +211,15 @@ func _() {
 			s[i] = byte(v >> (maxLen - i) & 1)
 		}
 		return s
+	}
+	cmp := func(a, b int) int {
+		if a == b {
+			return 0
+		}
+		if a < b {
+			return -1
+		}
+		return 1
 	}
 
 	sort3 := func(a ...int) (x, y, z int) { sort.Ints(a); return a[0], a[1], a[2] }
@@ -1169,8 +1196,8 @@ func _() {
 	}
 
 	_ = []interface{}{
-		pow10, dir4, dir4g, dir4g2, dir4c, dir4c2, dir4R, dir8, dir8m, perm3, perm4,
-		min, mins, max, maxs, abs, ceil, bin,
+		pow10, dir4, dir8, perm3, perm4,
+		min, mins, max, maxs, abs, ceil, bin, cmp,
 		ternaryI, ternaryS, zip, zipI, mergeMap, xorSet, rotateCopy, transpose, minString,
 		pow, mul, toAnyBase, digits,
 		subSum, recoverArrayFromSubsetSum, subSumSorted, groupPrefixSum, circularRangeSum, initSum2D, querySum2D, rowColSum, diagonalSum,

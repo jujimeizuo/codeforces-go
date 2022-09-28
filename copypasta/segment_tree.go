@@ -2,6 +2,8 @@ package copypasta
 
 // 重新发明线段树 by 灵茶山艾府（8:36 开始）https://www.bilibili.com/video/BV18t4y1p736
 
+// 可视化 https://visualgo.net/zh/segmenttree
+
 // 推荐阅读《算法竞赛进阶指南》0x43 和 0x48 节
 // https://oi-wiki.org/ds/seg/
 // https://cp-algorithms.com/data_structures/segment_tree.html
@@ -35,6 +37,8 @@ package copypasta
 //     https://codeforces.com/contest/1514/problem/D
 // GCD https://codeforces.com/problemset/problem/914/D
 // 最小差值 https://codeforces.com/problemset/problem/765/F
+// 区间最短线段长度 https://codeforces.com/problemset/problem/522/D
+// 区间元素去重后的异或和 https://codeforces.com/problemset/problem/703/D
 // 题目推荐 https://cp-algorithms.com/data_structures/segment_tree.html#toc-tgt-12
 // LC https://leetcode-cn.com/tag/segment-tree/
 // 另见 dp.go 的动态 DP 部分
@@ -157,7 +161,8 @@ func (t seg) update(o, i, val int) {
 		t.set(o, val)
 		return
 	}
-	if m := (t[o].l + t[o].r) >> 1; i <= m {
+	m := (t[o].l + t[o].r) >> 1
+	if i <= m {
 		t.update(o<<1, i, val)
 	} else {
 		t.update(o<<1|1, i, val)
@@ -248,6 +253,7 @@ func (t seg) queryFirstLessPosInRange(o, l, r, v int) int {
 // + 某个区间的不小于 x 的最小下标 https://codeforces.com/edu/course/2/lesson/5/3/practice/contest/280799/problem/C
 // =max 求和的 O(log^2) 性质 https://codeforces.com/contest/1439/problem/C
 // 矩阵乘法 ∑ https://codeforces.com/problemset/problem/718/C
+// 单点查询的简化写法 https://codeforces.com/problemset/problem/292/E https://codeforces.com/contest/292/submission/173659179
 //
 // 多个更新操作复合：
 // * + ∑ https://www.luogu.com.cn/problem/P3373 https://leetcode-cn.com/problems/fancy-sequence/

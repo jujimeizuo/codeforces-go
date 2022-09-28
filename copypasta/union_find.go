@@ -11,6 +11,7 @@ import (
 */
 
 // 普通并查集
+// 可视化 https://visualgo.net/zh/ufds
 // https://oi-wiki.org/ds/dsu/
 // https://cp-algorithms.com/data_structures/disjoint_set_union.html
 // 并查集时间复杂度证明 https://oi-wiki.org/ds/dsu-complexity/
@@ -25,6 +26,7 @@ import (
 // 思维转换 https://nanti.jisuanke.com/t/43488
 //         https://codeforces.com/problemset/problem/1012/B
 //         https://codeforces.com/problemset/problem/1466/F
+// 前缀和 后缀和 https://codeforces.com/problemset/problem/292/D
 // 维护树或基环树 https://codeforces.com/problemset/problem/859/E
 // 求矩阵的 rank 矩阵 https://codeforces.com/problemset/problem/650/C LC1632/周赛212D https://leetcode-cn.com/problems/rank-transform-of-a-matrix/submissions/
 // 分组排序套路 LC1998/周赛257D https://leetcode-cn.com/problems/gcd-sort-of-an-array/
@@ -93,24 +95,38 @@ func _(n int) {
 		return ft
 	}
 
-	// 离散化版本
-	faMap := map[int]int{}
-	find = func(x int) int {
-		if fx, ok := faMap[x]; ok && fx != x {
-			faMap[x] = find(fx)
-			return faMap[x]
+	{
+		// 离散化版本
+		// https://leetcode.cn/problems/most-stones-removed-with-same-row-or-column/
+		fa := map[int]int{}
+		groups := 0
+		var find func(int) int
+		find = func(x int) int {
+			fx, ok := fa[x]
+			if !ok {
+				fa[x] = x
+				fx = x
+				groups++
+			}
+			if fx != x {
+				fa[x] = find(fx)
+				return fa[x]
+			}
+			return x
 		}
-		return x
-	}
 
-	// merge，并返回新的 root
-	mergeNew := func(from, to int) int {
-		x, y := find(from), find(to)
-		if x == y {
-			return -2e9
+		// merge，并返回新的 root
+		merge := func(from, to int) int {
+			x, y := find(from), find(to)
+			if x == y {
+				return -2e9
+			}
+			fa[x] = y
+			groups--
+			return y
 		}
-		fa[x] = y
-		return y
+
+		_ = merge
 	}
 
 	mergeRangeTo := func(l, r, to int) { // 常用：to=r+1，这时建议用左闭右开表示区间
@@ -177,7 +193,7 @@ func _(n int) {
 		_ = merge
 	}
 
-	_ = []interface{}{merge, same, mergeBig, mergeNew, mergeRangeTo, getRoots, countRoots, getComps}
+	_ = []interface{}{merge, same, mergeBig, mergeRangeTo, getRoots, countRoots, getComps}
 }
 
 // 二维并查集

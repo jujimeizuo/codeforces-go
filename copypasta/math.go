@@ -115,6 +115,10 @@ https://oeis.org/A216485 222...2
 	a(n) is the smallest positive number such that the decimal digits of n*a(n) are all 0, 1 or 2
 	https://oeis.org/A181061
 
+Berlekamp–Massey algorithm
+https://en.wikipedia.org/wiki/Berlekamp%E2%80%93Massey_algorithm
+https://oi-wiki.org/math/berlekamp-massey/
+
 椭圆曲线加密算法 https://ac.nowcoder.com/acm/contest/6916/C
 
 Gaussian integer https://en.wikipedia.org/wiki/Gaussian_integer
@@ -122,6 +126,9 @@ Eisenstein integer https://en.wikipedia.org/wiki/Eisenstein_integer
 Eisenstein prime https://en.wikipedia.org/wiki/Eisenstein_prime
 
 https://oeis.org/A054710 Number of powers of 10 mod n https://codeforces.com/problemset/problem/1070/A
+
+https://oeis.org/A050295 Number of strongly triple-free subsets of {1, 2, ..., n}
+    https://leetcode.cn/circle/discuss/QH0XWr/
 
 挑战 2.6 节练习题
 2429 分解 LCM/GCD = a*b 且 gcd(a,b)=1 且 a+b 最小
@@ -521,6 +528,7 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 		Values of records https://oeis.org/A005250
 		Gap 均值 https://oeis.org/A286888 a(n)= floor((prime(n) - 2)/(n - 1))
 		相关题目 https://www.luogu.com.cn/problem/P6104 https://class.luogu.com.cn/classroom/lgr69
+		https://codingcompetitions.withgoogle.com/kickstart/round/0000000000435a5b/000000000077a8e6
 		Numbers whose distance to the closest prime number is a prime number http://oeis.org/A160666
 
 	https://oeis.org/A007918 Least prime >= n (version 1 of the "next prime" function)
@@ -1603,6 +1611,7 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	// https://oi-wiki.org/math/primitive-root/
 	// https://cp-algorithms.com/algebra/primitive-root.html
 	// todo 原根&离散对数相关 https://www.luogu.com.cn/blog/command-block/yuan-gen-li-san-dui-shuo-xiang-guan
+	//      浅谈离散对数问题 https://www.luogu.com.cn/blog/328405/qian-tan-li-san-dui-shuo-wen-ti
 	// https://oeis.org/A033948 Numbers that have a primitive root (the multiplicative group modulo n is cyclic)
 	//     The sequence consists of 1, 2, 4 and numbers of the form p^i and 2p^i, where p is an odd prime and i > 0
 	// https://oeis.org/A046144 Number of primitive roots modulo n
@@ -1901,6 +1910,7 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	//      http://blog.miskcoo.com/2015/05/discrete-logarithm-problem
 	//      https://www.luogu.com.cn/blog/hzoiliuchang/shuo-lun-zhi-bsgs-suan-fa
 	// 模板题 https://www.luogu.com.cn/problem/P3846
+	// todo https://atcoder.jp/contests/abc270/tasks/abc270_g
 	babyStepGiantStep := func(a, b, p, k int64) int64 { // 非 exBSGS 下 k=1
 		b %= p
 		t := int64(math.Sqrt(float64(p))) + 1
