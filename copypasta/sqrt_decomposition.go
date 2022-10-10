@@ -5,9 +5,10 @@ import (
 	"sort"
 )
 
-/* 分块思想 Sqrt Decomposition
+/* 根号分治 Sqrt Decomposition
 一种技巧：组合两种算法从而降低复杂度 O(n^2) -> O(n√n)
 参考 Competitive Programmer’s Handbook Ch.27
+王悦同《根号算法——不只是分块》
 
 题目花样很多，下面举个例子
 有 n 个对象，每个对象有一个「关于其他对象的统计量」ci（一个数、一个集合的元素个数，等等）
@@ -15,16 +16,19 @@ import (
 当 ci > √n 时，这样的对象不超过 √n 个，暴力枚举这些对象之间的关系（或者，该对象与其他所有对象的关系），时间复杂度为 O(n) 或 O(n√n)。此乃算法一
 当 ci ≤ √n 时，这样的对象有 O(n) 个，由于统计量 ci 很小，暴力枚举当前对象的统计量，时间复杂度为 O(n√n)。此乃算法二
 这样，以 √n 为界，我们将所有对象划分成了两组，并用两个不同的算法处理
-这两种算法是看待同一个问题的两种不同方式，通过恰当地组合这两个算法，复杂度由 O(n^2) 降至 O(n√n)
+这两种算法是看待同一个问题的两种不同方式，通过恰当地组合（平衡）这两个算法，复杂度由 O(n^2) 降至 O(n√n)
 注意：**枚举时要做到不重不漏**
 
-可以从这题上手 https://codeforces.com/problemset/problem/797/E
-
+可以从这题上手 https://www.luogu.com.cn/problem/P3396 同 https://codeforces.com/contest/103/problem/D
+https://www.luogu.com.cn/problem/T279521?contestId=65460 https://www.luogu.com.cn/blog/cyffff/solution-JRKSJ-Eltaw
 https://codeforces.com/problemset/problem/425/D
 https://codeforces.com/problemset/problem/677/D
+https://codeforces.com/problemset/problem/797/E
 https://codeforces.com/problemset/problem/1207/F
 https://codeforces.com/problemset/problem/1468/M 或四元环
 LCP16 https://leetcode-cn.com/problems/you-le-yuan-de-you-lan-ji-hua/
+https://codeforces.com/problemset/problem/1039/D
+https://codeforces.com/problemset/problem/1039/E
 */
 
 // TIPS: n 的整数分拆中，不同数字的个数至多有 O(√n) 种
