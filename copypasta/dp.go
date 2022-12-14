@@ -9,21 +9,23 @@ import (
 
 /* 动态规划
 
-首先请透彻理解何为问题的「状态空间」，见 search.go 开头的注释
-
 思考过程：
-可以参考我的这篇题解：https://leetcode.cn/problems/minimum-white-tiles-after-covering-with-carpets/solution/by-endlesscheng-pa3v/
-1.1 如何把问题形式化为状态空间？（可以从边界、子集的角度思考）
-1.2 子问题是如何重叠的？
-1.3 子问题是怎么逐层递进的？（题目描述、隐含的顺序）
-2.1 如何定义状态？需要用几个维度表示？
-2.2 状态的范围是多少？起点状态和终点状态是什么？
-2.3 哪些状态是相邻的？（即通过一次转移就能得到）
-2.4 状态转移时要计算哪些内容？
-2.5 对于转移来的相邻状态（入边），怎么决策？（简单的有取最值取和，复杂的有组合决策）
-3.1 若复杂度过高，如何优化决策？
-* 状态不好确定时，尝试转化问题模型、逆序思考、增加维度等等
-* 对于计数问题或概率问题来说，状态定义和状态转移要做到不重不漏
+1. 把原问题重新复述一遍，例如「从前 n 个数中选择若干个数，这些数的和为 m 的方案数」。
+2. 根据题意，尝试「缩小」问题的规模，我们可以怎样缩小？
+   - 这里有两个变量 n 和 m，有什么方法可以把它们缩小？
+3. 尝试「原子」操作（考虑其中「一个」数选或者不选，例如第 n 个数）：
+   - 不选第 n 个数，问题变为「从前 n-1 个数中选择若干个数，这些数的和为 m 的方案数」。
+   - 选第 n 个数，问题变为「从前 n-1 个数中选择若干个数，这些数的和为 m-a[n] 的方案数」。
+   - 原问题可以不重不漏地分解成这两种情况。
+   - 根据加法原理，原问题为这两种方案的和。
+4. 这可以用记忆化搜索写。终点是什么？
+   - n=0。（这里数组下标是从 1 开始的）
+5. 如果用递推来思考，要怎么写？空间能否压缩？
+   - 自底向上思考记忆化搜索的过程。
+6.（进阶）如果复杂度过高，如何根据状态转移方程来优化？
+7.（进阶）状态不好确定时，尝试转化问题模型、逆序思考、增加维度等等。（试试下面的题目）
+
+题目已经分类整理好：试试搜索「线性」「最大子段和」等。
 
 如何设计状态
 https://codeforces.com/problemset/problem/360/B
@@ -225,10 +227,14 @@ func _(min, max func(int, int) int, abs func(int) int) {
 
 	/* 线性 DP
 	① 前缀/后缀之间的转移，例如从 dp[i-1] 转移到 dp[i]，或者从 dp[j] 转移到 dp[i]
+	LC70 https://leetcode.cn/problems/climbing-stairs/
+	LC746 https://leetcode.cn/problems/min-cost-climbing-stairs/
 	LC198 https://leetcode.cn/problems/house-robber/
+	- 变形：恰好选 floor(n/2) 个 https://atcoder.jp/contests/abc162/tasks/abc162_f
 	LC213 https://leetcode.cn/problems/house-robber-ii/
 	- 相似题目 https://atcoder.jp/contests/abc251/tasks/abc251_e
 	LC276 https://leetcode.cn/problems/paint-fence/
+	LC343 https://leetcode.cn/problems/integer-break/
 	LC368 https://leetcode.cn/problems/largest-divisible-subset/
 	LC1105 https://leetcode.cn/problems/filling-bookcase-shelves/
 	LC2369 https://leetcode.cn/problems/check-if-there-is-a-valid-partition-for-the-array/
@@ -270,10 +276,11 @@ func _(min, max func(int, int) int, abs func(int) int) {
 	// LC120 https://leetcode.cn/problems/triangle/ https://www.luogu.com.cn/problem/P1216
 	// LC931 https://leetcode.cn/problems/minimum-falling-path-sum/
 	// LC2435 https://leetcode.cn/problems/paths-in-matrix-whose-sum-is-divisible-by-k/
+	// 每行至多选三个 https://atcoder.jp/contests/abc175/tasks/abc175_e
 
 	// 最大子段和 https://www.luogu.com.cn/problem/P1115
 	// 有两种思路
-	// 1. 定义状态 dp[i] 表示以 a[i] 结尾的最大子段和，则有状态转移方程 dp[i]=max(dp[i−1],0)+a[i]
+	// 1. 定义状态 dp[i] 表示以 a[i] 结尾的最大子段和，则有状态转移方程 dp[i]=max(dp[i−1],0)+a[i]，答案为 max(dp)
 	// 2. 遍历 a 的同时维护前缀和的最小值，则遍历到 a[i] 时，当前最大子段和为 sum[i]-min(sum[j]), j<i
 	// 算法导论 练习4.1-5
 	// [题型总结] 关于最大子段和及其变式 https://www.luogu.com.cn/blog/wey-yzyl/zui-tai-zi-duan-hu-ji-ji-bian-shi-di-qi-shi
@@ -468,8 +475,10 @@ func _(min, max func(int, int) int, abs func(int) int) {
 	//     LC712  https://leetcode-cn.com/problems/minimum-ascii-delete-sum-for-two-strings/
 	//     LC1035 https://leetcode-cn.com/problems/uncrossed-lines/
 	//     LC1312 https://leetcode-cn.com/problems/minimum-insertion-steps-to-make-a-string-palindrome/ https://www.luogu.com.cn/problem/P1435
+	//     权值 https://atcoder.jp/contests/abc185/tasks/abc185_e
 	//     其中一个改为子串 https://codeforces.com/problemset/problem/163/A
 	//     https://codeforces.com/problemset/problem/1446/B
+	//【相同子序列个数】https://atcoder.jp/contests/abc130/tasks/abc130_e
 	// 多个排列的 LCS（转化成 DAG 最长路）https://codeforces.com/problemset/problem/463/D
 	// 转换【巧妙】https://codeforces.com/problemset/problem/1114/D
 	// 20多校第二场 https://acm.hdu.edu.cn/showproblem.php?pid=6774
@@ -552,6 +561,7 @@ func _(min, max func(int, int) int, abs func(int) int) {
 
 	// 最长回文子序列 (LPS)
 	// 即 LCS(s, reverse(s))
+	// 回文串见后面
 	// LC516 https://leetcode-cn.com/problems/longest-palindromic-subsequence/
 	// LC1216 https://leetcode-cn.com/problems/valid-palindrome-iii/
 	// LC1246 https://leetcode.cn/problems/palindrome-removal/
@@ -869,32 +879,91 @@ func _(min, max func(int, int) int, abs func(int) int) {
 	// 边界 dp[0][0] = 1
 	// todo https://atcoder.jp/contests/abc234/tasks/abc234_f
 
+	// O(n^2) 计算 LCP —— 如果你不想用后缀数组的话
+	// LC1977 https://leetcode.cn/problems/number-of-ways-to-separate-numbers/description/
+	lcp := func(s string) {
+		n := len(s)
+		lcp := make([][]int, n+1)
+		for i := range lcp {
+			lcp[i] = make([]int, n+1)
+		}
+		for i := n - 1; i >= 0; i-- {
+			for j := n - 1; j >= 0; j-- {
+				if s[i] == s[j] {
+					lcp[i][j] = lcp[i+1][j+1] + 1
+				}
+			}
+		}
+		// 返回 s[l1:l2] <= s[l2:r2]
+		lessEq := func(l1, l2, r2 int) bool {
+			l := lcp[l1][l2]
+			return l >= r2-l2 || s[l1+l] < s[l2+l]
+		}
+		_ = lessEq
+	}
+
+	// 回文串：中心扩展法
+	// 原理见 https://leetcode.cn/problems/palindromic-substrings/solutions/379987/hui-wen-zi-chuan-by-leetcode-solution/
+	// LC647 https://leetcode.cn/problems/palindromic-substrings/
+	// LC2472 https://leetcode.cn/problems/maximum-number-of-non-overlapping-palindrome-substrings/
+	palindromeO1Space := func(s string) {
+		n := len(s)
+		for i := 0; i < 2*n-1; i++ { // i 为偶数表示奇回文串，i 为奇数表示偶回文串
+			l, r := i/2, i/2+i%2
+			// 从 s[i/2..i/2(+1)] 开始扩展
+			// do init ...
+
+			for l >= 0 && r < n && s[l] == s[r] {
+				// do s[l..r] ...
+
+				l--
+				r++
+			}
+		}
+	}
+
+	// O(n^2) 求每个子串是否是回文的
+	// 一般用于 DP 预处理
+	// LC132 https://leetcode-cn.com/problems/palindrome-partitioning-ii/
+	// LC2472 https://leetcode.cn/problems/maximum-number-of-non-overlapping-palindrome-substrings/
+	// https://codeforces.com/problemset/problem/835/D
+	isPalindrome := func(s string) [][]bool {
+		n := len(s)
+		isP := make([][]bool, n)
+		for i := range isP {
+			isP[i] = make([]bool, n)
+		}
+		for l := n - 1; l >= 0; l-- {
+			for r := l; r < n; r++ {
+				isP[l][r] = s[l] == s[r] && (r-l < 3 || isP[l+1][r-1])
+			}
+		}
+		return isP
+	}
+
 	// 回文串最小分割次数
 	// 紫书例题 9-7，UVa 11584 https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=27&page=show_problem&problem=2631
 	// LC132 https://leetcode-cn.com/problems/palindrome-partitioning-ii/
 	minPalindromeCut := func(s string) int {
 		n := len(s)
-		g := make([][]bool, n)
-		for i := range g {
-			g[i] = make([]bool, n)
-			for j := range g[i] {
-				g[i][j] = true
-			}
+		isP := make([][]bool, n)
+		for i := range isP {
+			isP[i] = make([]bool, n)
 		}
-		for i := n - 1; i >= 0; i-- {
-			for j := i + 1; j < n; j++ {
-				g[i][j] = s[i] == s[j] && g[i+1][j-1]
+		for l := n - 1; l >= 0; l-- {
+			for r := l; r < n; r++ {
+				isP[l][r] = s[l] == s[r] && (r-l < 3 || isP[l+1][r-1])
 			}
 		}
 
 		f := make([]int, n)
-		for i := range f {
-			if g[0][i] { // f[i] = 0
+		for i, prefixP := range isP[0] {
+			if prefixP { // f[i] = 0
 				continue
 			}
 			f[i] = int(1e9)
 			for j := 0; j < i; j++ {
-				if g[j+1][i] {
+				if isP[j+1][i] {
 					f[i] = min(f[i], f[j]+1)
 				}
 			}
@@ -1035,7 +1104,7 @@ func _(min, max func(int, int) int, abs func(int) int) {
 		for i := n - 1; i >= 0; i-- {
 			fa[i] = make([]int, maxW+1)
 			for j := range fa[i] {
-				fa[i][j] = j
+				fa[i][j] = j // 注意：<w 的转移来源也要标上！
 			}
 			v, w := values[i], weights[i]
 			for j := maxW; j >= w; j-- {
@@ -1046,7 +1115,7 @@ func _(min, max func(int, int) int, abs func(int) int) {
 			}
 		}
 		for i, j := 0, maxW; i < n; {
-			if fa[i][j] == j {
+			if fa[i][j] == j { // &&  weights[i] > 0      考虑重量为 0 的情况，必须都选上
 				i++
 			} else {
 				ans = append(ans, i+1) // 下标从 1 开始
@@ -2070,6 +2139,12 @@ func _(min, max func(int, int) int, abs func(int) int) {
 	https://codeforces.com/problemset/problem/66/E
 	https://codeforces.com/problemset?order=BY_RATING_ASC&tags=data+structures%2Cdp
 
+	前缀和优化 DP
+	LC1977 https://leetcode.cn/problems/number-of-ways-to-separate-numbers/
+	LC2327 https://leetcode.cn/problems/number-of-people-aware-of-a-secret/
+	LC2463 https://leetcode.cn/problems/minimum-total-distance-traveled/
+	LC2478 https://leetcode.cn/problems/number-of-beautiful-partitions/
+
 	动态 DP
 	https://oi-wiki.org/dp/dynamic/
 	线段树维护转移矩阵 https://www.cnblogs.com/Miracevin/p/9124511.html
@@ -2178,6 +2253,9 @@ func _(min, max func(int, int) int, abs func(int) int) {
 	// 扔蛋问题 LC887 https://leetcode-cn.com/problems/super-egg-drop/
 
 	/* 树形 DP
+	一般是从自底向上计算的，也就是根据子树返回值来计算父节点的值
+	也有自顶向下的写法，见后面
+
 	https://blog.csdn.net/weixin_43914593/article/details/107145592
 	https://codeforces.com/blog/entry/20935
 	https://codeforces.com/blog/entry/63257
@@ -2196,10 +2274,14 @@ func _(min, max func(int, int) int, abs func(int) int) {
 	可以重复走 https://codeforces.com/problemset/problem/1220/E
 	巧妙的转换 https://codeforces.com/problemset/problem/734/E
 	https://codeforces.com/problemset/problem/1292/C
+
+	自顶向下
+	https://leetcode.cn/problems/U7WvvU/ 题解 https://leetcode.cn/problems/U7WvvU/solution/shu-xing-dp-by-endlesscheng-isuo/
 	*/
 
 	// 树的直径（两遍 DFS 求法另见 graph_tree.go 中的 diameter）
 	// LC1245 https://leetcode-cn.com/problems/tree-diameter/
+	// 变形 LC2246 https://leetcode.cn/problems/longest-path-with-different-adjacent-characters/
 	// 变形 https://codeforces.com/problemset/problem/1238/F
 	diameter := func(st int, g [][]int) (diameter int) {
 		var f func(v, fa int) int
@@ -2645,7 +2727,8 @@ func _(min, max func(int, int) int, abs func(int) int) {
 		lcs, lcsPath, longestPalindromeSubsequence,
 		lisSlow, lis, lisAll, cntLis, lcis, lcisPath, countLIS,
 		distinctSubsequence,
-		minPalindromeCut,
+		lcp,
+		palindromeO1Space, isPalindrome, minPalindromeCut,
 
 		zeroOneKnapsack, zeroOneKnapsackExactlyFull, zeroOneKnapsackAtLeastFillUp, zeroOneWaysToSum, zeroOneKnapsackLexicographicallySmallestResult, zeroOneKnapsackByValue,
 		unboundedKnapsack, unboundedWaysToSum,

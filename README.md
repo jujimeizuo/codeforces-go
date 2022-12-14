@@ -1,5 +1,7 @@
 # codeforces-go 💭💡🎈
 
+[【基础算法精讲】](https://www.bilibili.com/video/BV1AP41137w7/)B站连载中~欢迎一键三连！
+
 ## 算法 Algorithm
 
 由于算法知识点繁杂，将自己学习到的算法、做过的题目分类整理好是有必要的。
@@ -336,6 +338,8 @@
 [All the good tutorials found for Competitive Programming](https://codeforces.com/blog/entry/57282)
 
 [Codeforces Problem Topics](https://codeforces.com/blog/entry/55274)
+
+[The Ultimate Topic List(with Tutorials, Problems, and Templates)](https://blog.shahjalalshohag.com/topic-list/)
 
 [GeeksforGeeks 上的算法合集](https://www.geeksforgeeks.org/how-to-prepare-for-acm-icpc/)
 
