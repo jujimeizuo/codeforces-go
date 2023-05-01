@@ -17,11 +17,17 @@ https://cp-algorithms.com/data_structures/stack_queue_modification.html
 https://blog.csdn.net/weixin_43914593/article/details/105791217 算法竞赛专题解析（13）：DP优化(3)--单调队列优化
 todo https://xyzl.blog.luogu.org/DQ-OP-DP
 
-模板题 https://leetcode.cn/problems/dui-lie-de-zui-da-zhi-lcof/
-https://leetcode.cn/tag/monotonic-queue/problemset/
-todo https://www.luogu.com.cn/problem/P2627
-todo http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=1070
+- [面试题 59-II. 队列的最大值](https://leetcode.cn/problems/dui-lie-de-zui-da-zhi-lcof/)（单调队列模板题）
+- [239. 滑动窗口最大值](https://leetcode.cn/problems/sliding-window-maximum/)
+- [862. 和至少为 K 的最短子数组](https://leetcode.cn/problems/shortest-subarray-with-sum-at-least-k/)
+- [1438. 绝对差不超过限制的最长连续子数组](https://leetcode.cn/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/)
 
+https://leetcode.cn/tag/monotonic-queue/problemset/
+
+单调队列优化 DP
+todo https://www.luogu.com.cn/problem/P2627
+ http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=1070
+ 老鼠进洞 http://codeforces.com/problemset/problem/797/F
 LC375 猜数字大小 II https://leetcode-cn.com/problems/guess-number-higher-or-lower-ii/
       https://leetcode.cn/problems/guess-number-higher-or-lower-ii/solution/cong-ji-yi-hua-sou-suo-on3-dao-dong-tai-q13g9/
 */
@@ -214,7 +220,7 @@ func BalancedPlaylist(a []int, n int) (ans []int) {
 // 输入：高 h 宽 w 的窗口大小
 // 返回：一个 n-h+1 行 m-w+1 列的矩阵 areaMax，其中 areaMax[i][j] 表示窗口左上角位于矩阵 (i,j) 时的窗口中元素的最大值
 // 例题：HA07 理想的正方形 https://www.luogu.com.cn/problem/P2216
-// 解释见这篇题解，看图就懂了 https://www.acwing.com/solution/content/54792/
+// 解释：https://cdn.acwing.com/media/article/image/2021/06/29/52559_7d7b27ced8-1.png
 func FixedSizeAreaMax(mat [][]int, h, w int) [][]int {
 	n, m := len(mat), len(mat[0])
 

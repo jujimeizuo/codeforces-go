@@ -278,6 +278,25 @@ func trap(a []int) (ans int) {
     return
 }
 
+// LC 45 跳跃游戏 II
+func jump(a []int) (ans int) {
+    max := func(a, b int) int {
+        if b > a {
+            return b
+        }
+        return a
+    }
+    curR, nxtR := 0, 0
+    for i, d := range a[:len(a)-1] {
+        nxtR = max(nxtR, i+d)
+        if i == curR {
+            curR = nxtR
+            ans++
+        }
+    }
+    return ans
+}
+
 // LC 47 给定一个可包含重复数字的序列，返回所有不重复的全排列
 func permuteUnique(nums []int) (ans [][]int) {
     n := len(nums)
@@ -321,6 +340,45 @@ func totalNQueens(n int) (ans int) {
         }
     }
     solve(0, 0, 0, 0)
+    return
+}
+
+// LC 55 跳跃游戏
+func canJump(a []int) bool {
+    max := func(a, b int) int {
+        if b > a {
+            return b
+        }
+        return a
+    }
+    maxR := 0
+    for l, d := range a {
+        if l > maxR {
+            return false
+        }
+        maxR = max(maxR, l+d)
+    }
+    return true
+}
+
+// LC 56 合并区间
+func merge(a [][]int) (ans [][]int) {
+    max := func(a, b int) int {
+        if b > a {
+            return b
+        }
+        return a
+    }
+    sort.Slice(a, func(i, j int) bool { return a[i][0] < a[j][0] })
+    l, maxR := a[0][0], a[0][1]
+    for _, p := range a {
+        if p[0] > maxR {
+            ans = append(ans, []int{l, maxR})
+            l = p[0]
+        }
+        maxR = max(maxR, p[1])
+    }
+    ans = append(ans, []int{l, maxR})
     return
 }
 
@@ -476,7 +534,7 @@ func inorderTraversal(root *TreeNode) (res []int) {
         } else { // 没有左子树
             res = append(res, root.Val)
             // 若有右子树，则遍历右子树
-            // 若没有右子树，则整颗左子树已遍历完，root 会通过之前设置的指向回到这颗子树的父节点
+            // 若没有右子树，则整棵左子树已遍历完，root 会通过之前设置的指向回到这棵子树的父节点
             root = root.Right
         }
     }

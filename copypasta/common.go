@@ -6,29 +6,143 @@ import (
 	"math"
 	"math/bits"
 	"math/rand"
+	"reflect"
 	"sort"
 	"time"
+	"unsafe"
 )
+
+// Competitive Programming Roadmap (target: [gray, blue]) https://codeforces.com/blog/entry/111099
 
 // 解决问题的一般方法 https://codeforces.com/blog/entry/92248?#comment-809401
 // General ideas https://codeforces.com/blog/entry/48417
 // 从特殊到一般：尝试修改条件或缩小题目的数据范围，先研究某个特殊情况下的思路，然后再逐渐扩大数据范围来思考怎么改进算法
 // 重谈主定理及其证明 https://www.luogu.com.cn/blog/GJY-JURUO/master-theorem
 
-/* 贪心
+/*
+最基本的双变量思想
+LC1 https://leetcode.cn/problems/two-sum/
+
+哈希表与前缀和（双变量思想）
+推荐按照顺序完成
+LC560 https://leetcode.cn/problems/subarray-sum-equals-k/
+LC974 https://leetcode.cn/problems/subarray-sums-divisible-by-k/
+LC1590 https://leetcode.cn/problems/make-sum-divisible-by-p/
+LC523 https://leetcode.cn/problems/continuous-subarray-sum/
+LC525 https://leetcode.cn/problems/contiguous-array/
+LC1915 https://leetcode.cn/problems/number-of-wonderful-substrings/
+LC930 https://leetcode-cn.com/problems/binary-subarrays-with-sum/
+LC1371 https://leetcode-cn.com/problems/find-the-longest-substring-containing-vowels-in-even-counts/
+LC1542 https://leetcode-cn.com/problems/find-longest-awesome-substring/
+https://leetcode.cn/problems/find-longest-subarray-lcci/
+https://codeforces.com/problemset/problem/1296/C
+
+前后缀分解
+- [42. 接雨水](https://leetcode.cn/problems/trapping-rain-water/)（[视频讲解](https://www.bilibili.com/video/BV1Qg411q7ia/?t=3m05s)）
+- [238. 除自身以外数组的乘积](https://leetcode.cn/problems/product-of-array-except-self/)
+- [2256. 最小平均差](https://leetcode.cn/problems/minimum-average-difference/)
+- [2483. 商店的最少代价](https://leetcode.cn/problems/minimum-penalty-for-a-shop/)
+- [2420. 找到所有好下标](https://leetcode.cn/problems/find-all-good-indices/)
+- [2167. 移除所有载有违禁货物车厢所需的最少时间](https://leetcode.cn/problems/minimum-time-to-remove-all-cars-containing-illegal-goods/)
+- [2484. 统计回文子序列数目](https://leetcode.cn/problems/count-palindromic-subsequences/)
+- [2552. 统计上升四元组](https://leetcode.cn/problems/count-increasing-quadruplets/)
+- [2565. 最少得分子序列](https://leetcode.cn/problems/subsequence-with-the-minimum-score/)
+
+巧妙枚举
+https://codeforces.com/problemset/problem/1181/C
+https://codeforces.com/problemset/problem/1626/D
+
+贪心及其证明
+- [2611. 老鼠和奶酪](https://leetcode.cn/problems/mice-and-cheese/)
+- [1029. 两地调度](https://leetcode.cn/problems/two-city-scheduling/)
+https://codeforces.com/problemset/problem/1369/C
+	提示 1：前 k 大的数一定可以作为最大值。且尽量把大的数放在 w[i] = 1 的组中，这样可以计入答案两次。
+	如果某个前 k 大的数 x 没有作为最大值（其中一个组的最大值是不在前 k 大中的 y），那么把 x 和 y 交换，
+	如果 x 是某个组的最小值，那么交换后 y 必然也是最小值，此时答案不变。
+	如果 x 不是某个组的最小值（这个组的最小值是 z）：
+		   如果 y 交换后变成了最小值，那么答案变大了 x-z。
+		   如果 y 交换后也不是最小值，那么答案变大了 x-y。
+	无论如何，这样交换都不会使答案变小，因此前 k 大的数一定可以作为最大值。
+	提示 2：然后来说最小值。a 的最小值必然要分到某个组中，为了「跳过」尽量多的较小的数，优先把 a 中较小的数分到 w 较大的组中。所以 a 从小到大遍历，w 从大到小遍历。
+
+每次取数组中大于 0 的连续一段同时减 1，求使数组全为 0 的最少操作次数
+https://leetcode.cn/problems/minimum-number-of-increments-on-subarrays-to-form-a-target-array/solutions/371326/xing-cheng-mu-biao-shu-zu-de-zi-shu-zu-zui-shao-ze/
+https://codeforces.com/problemset/problem/448/C
+
 邻项交换
 LC1665 完成所有任务的最少初始能量 https://leetcode.cn/problems/minimum-initial-energy-to-finish-tasks/
+https://atcoder.jp/contests/arc147/tasks/arc147_b
+https://atcoder.jp/contests/abc268/tasks/abc268_f
 
 区间与点的最大匹配/覆盖问题
 https://www.luogu.com.cn/problem/P2887
 https://codeforces.com/problemset/problem/555/B
 https://codeforces.com/problemset/problem/863/E
 
-需要一些观察
-1900 https://codeforces.com/problemset/problem/558/C
+观察、结论
+https://codeforces.com/problemset/problem/1442/A
+https://codeforces.com/problemset/problem/558/C
+https://codeforces.com/problemset/problem/1610/E
+https://codeforces.com/problemset/problem/1811/C
+https://codeforces.com/problemset/problem/1822/D
 
-难题
-2800 https://codeforces.com/problemset/problem/521/D
+构造
+LC767 https://leetcode.cn/problems/reorganize-string/
+LC667 https://leetcode.cn/problems/beautiful-arrangement-ii/
+https://atcoder.jp/contests/arc145/tasks/arc145_a
++贪心 https://codeforces.com/problemset/problem/118/C
++分类讨论 https://codeforces.com/problemset/problem/584/C
++分类讨论 https://codeforces.com/problemset/problem/708/B
+[1800·hot10] https://codeforces.com/problemset/problem/1554/D
+相邻字母在字母表中不相邻 https://codeforces.com/contest/1156/problem/B
+棋盘放最多的马 https://codeforces.com/problemset/problem/142/B
+两点间恰好 k 条最短路径 http://codeforces.com/problemset/problem/388/B
+https://codeforces.com/problemset/problem/327/D
+https://codeforces.com/problemset/problem/515/D
+度数均为 k 且至少（恰好）有一条割边 https://codeforces.com/problemset/problem/550/D
+最短/最长 LIS https://codeforces.com/problemset/problem/1304/D
+
+不好想到的构造
+https://codeforces.com/contest/1659/problem/D
+https://atcoder.jp/contests/abc178/tasks/abc178_f
+
+不变量（想一想，操作不会改变什么）
+https://codeforces.com/contest/1775/problem/E 有点差分的味道，想想前缀和
+https://atcoder.jp/contests/arc119/tasks/arc119_c 操作不影响交错和
+https://codeforces.com/problemset/problem/1365/F 仍然对称
+
+不变量 2（总和）
+把一个环形数组切两刀，分成两段，要求相等，求方案数 => 和为 sum(a)/2 的子数组个数
+LC494 https://leetcode.cn/problems/target-sum/
+
+分类讨论（易错题）
+https://codeforces.com/problemset/problem/489/C
+https://codeforces.com/problemset/problem/1605/C
+https://codeforces.com/problemset/problem/382/C
+https://codeforces.com/problemset/problem/1095/E
+https://codeforces.com/problemset/problem/796/C
+https://codeforces.com/problemset/problem/1594/F
+https://codeforces.com/problemset/problem/1798/E
+https://codeforces.com/problemset/problem/1811/F
+
+大量分类讨论
+https://codeforces.com/problemset/problem/356/C
+https://codeforces.com/contest/1374/problem/E2
++构造 https://atcoder.jp/contests/arc153/tasks/arc153_c
+
+贡献法
+https://codeforces.com/problemset/problem/912/D
+https://codeforces.com/problemset/problem/915/F
+https://codeforces.com/problemset/problem/1208/E
+https://codeforces.com/problemset/problem/1808/D
+
+其他
+删除一个字符 + 删除最长连续前缀 https://codeforces.com/problemset/problem/1430/D
+https://codeforces.com/problemset/problem/521/D
+
+= 变成 <= 或者 >=
+求前缀和/后缀和
+https://leetcode.cn/problems/maximum-product-of-the-length-of-two-palindromic-substrings/
 */
 
 // 异类双变量：固定某变量统计另一变量的 [0,n)
@@ -51,6 +165,12 @@ https://codeforces.com/problemset/problem/863/E
 // 邻项修改->前缀和->单项修改 https://codeforces.com/problemset/problem/1254/B2 https://ac.nowcoder.com/acm/contest/7612/C
 
 // 双指针：如果 left == right 时 while 一定为 false，则可以省略 while 中 left < right 的判断
+// 双序列双指针
+// 背向双指针 LC360 https://leetcode.cn/problems/sort-transformed-array/
+// 双指针+DP
+
+// 滑动窗口
+// https://codeforces.com/problemset/problem/165/C
 
 /* 横看成岭侧成峰
 转换为距离的众数 https://codeforces.com/problemset/problem/1365/C
@@ -62,10 +182,8 @@ https://codeforces.com/problemset/problem/863/E
 和式的另一视角。若每一项的值都在一个范围，不妨考虑另一个问题：值为 x 的项有多少个？https://atcoder.jp/contests/abc162/tasks/abc162_e
 对所有排列考察所有子区间的性质，可以转换成对所有子区间考察所有排列。将子区间内部的排列和区间外部的排列进行区分，内部的性质单独研究，外部的当作 (n-(r-l))! 个排列 https://codeforces.com/problemset/problem/1284/C
 从最大值入手 https://codeforces.com/problemset/problem/1381/B
-等效性 https://leetcode-cn.com/contest/biweekly-contest-8/problems/maximum-number-of-ones/
-https://leetcode-cn.com/contest/biweekly-contest-31/problems/minimum-number-of-increments-on-subarrays-to-form-a-target-array/
-贡献 http://codeforces.com/problemset/problem/912/D
-贡献 https://codeforces.com/problemset/problem/1208/E
+等效性 LC1183 https://leetcode-cn.com/problems/maximum-number-of-ones/
+LC1526 https://leetcode-cn.com/problems/minimum-number-of-increments-on-subarrays-to-form-a-target-array/
 置换 https://atcoder.jp/contests/abc250/tasks/abc250_e
 排序+最小操作次数 https://codeforces.com/contest/1367/problem/F2
 */
@@ -78,7 +196,11 @@ https://codeforces.com/problemset/problem/369/E
 https://codeforces.com/problemset/problem/1644/D
 https://codeforces.com/problemset/problem/1638/D
 https://codeforces.com/problemset/problem/1672/D
-逆向思维 https://leetcode-cn.com/contest/biweekly-contest-9/problems/minimum-time-to-build-blocks/
+逆向思维 LC1199 https://leetcode-cn.com/problems/minimum-time-to-build-blocks/
+
+删除变添加
+https://codeforces.com/problemset/problem/295/B
+https://leetcode.cn/problems/maximum-segment-sum-after-removals/
 */
 
 /* 奇偶性
@@ -102,8 +224,6 @@ https://codeforces.com/problemset/problem/266/C
 https://codeforces.com/problemset/problem/1510/K
 https://leetcode-cn.com/problems/minimum-number-of-operations-to-reinitialize-a-permutation/
 */
-
-// 锻炼分类讨论能力 https://codeforces.com/problemset/problem/356/C
 
 // 「恰好」转换成「至少/至多」https://codeforces.com/problemset/problem/1188/C
 
@@ -132,6 +252,16 @@ https://codeforces.com/problemset/problem/707/D
 参考 https://draveness.me/golang/docs/part3-runtime/ch07-memory/golang-garbage-collector/
     https://zhuanlan.zhihu.com/p/77943973
 
+如果没有禁用 GC 但 MLE，可以尝试 1.19 新增的 debug.SetMemoryLimit
+例如 debug.SetMemoryLimit(200<<20)，其中 200 可以根据题目的约束来修改
+具体见如下测试：
+180<<20 1996ms 255100KB https://codeforces.com/contest/1800/submission/203769679
+195<<20  779ms 257800KB https://codeforces.com/contest/1800/submission/203768086
+200<<20  654ms 259300KB https://codeforces.com/contest/1800/submission/203768768
+205<<20  764ms 220100KB https://codeforces.com/contest/1800/submission/203771041
+210<<20        MLE
+参考 https://go.dev/doc/gc-guide#Memory_limit
+
 对于二维矩阵，以 make([][mx]int, n) 的方式使用，比 make([][]int, n) 嵌套 make([]int, m) 更高效（100MB 以上时可以快 ~150ms）
 但需要注意这种方式可能会向 OS 额外申请一倍的内存
 对比 https://codeforces.com/problemset/submission/375/118043978
@@ -143,6 +273,19 @@ https://codeforces.com/problemset/problem/707/D
 写在 main 外面 + slice 188364KB https://codeforces.com/contest/767/submission/174194380
 写在 main 外面 + array 154500KB https://codeforces.com/contest/767/submission/174193693
 */
+
+// slice 作为 map 的 key
+// 长度为 0 的 slice 对应空字符串
+func intSliceAsMapKeyExample(a []int) {
+	// 如果后面还会修改 a，可以先 copy 一份
+	//a = append(a[:0:0], a...)
+	cnt := map[string]int{}
+	sh := (*reflect.SliceHeader)(unsafe.Pointer(&a))
+	// 装作 byte slice
+	sh.Len *= bits.UintSize / 8
+	cnt[*(*string)(unsafe.Pointer(sh))]++
+}
+
 func _() {
 	const alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 	pow10 := func(x int) int64 { return int64(math.Pow10(x)) } // 不需要 round
@@ -358,6 +501,24 @@ func _() {
 		return res
 	}
 
+	// 等比数列求和取模
+	// 返回 (x^0 + x^1 + ... + x^n) % mod
+	// https://atcoder.jp/contests/abc293/tasks/abc293_e
+	gp := func(x, n, mod int64) int64 {
+		var f func(p, c int64) int64
+		f = func(p, c int64) int64 {
+			if c == 0 {
+				return 1 % mod
+			}
+			res := (1 + pow(p, (c+1)/2, mod)) * f(p, (c-1)/2)
+			if c%2 == 0 {
+				res += pow(p, c, mod)
+			}
+			return res % mod
+		}
+		return f(x, n)
+	}
+
 	// 从低位到高位
 	toAnyBase := func(x, base int) (res []int) {
 		for ; x > 0; x /= base {
@@ -493,15 +654,16 @@ func _() {
 
 	// 前缀和
 	prefixSum := func(a []int) {
-		//sort.Ints(a)
+		//sort.Ints(a) // todo
 
 		sum := make([]int, len(a)+1) // int64
 		for i, v := range a {
 			sum[i+1] = sum[i] + v
 		}
 
-		// 返回 sum(abs(a[i]-target))
-		// 为方便二分，需要保证 a 是有序的
+		// 返回所有数到 target 的距离之和，即 sum(abs(a[i]-target))
+		// 需要保证 a 是有序的
+		// LC2602 https://leetcode.cn/problems/minimum-operations-to-make-all-array-elements-equal/
 		distanceSum := func(target int) int {
 			i := sort.SearchInts(a, target)
 			left := target*i - sum[i]
@@ -509,33 +671,33 @@ func _() {
 			return left + right
 		}
 
+		// EXTRA: 青蛙跳井
+		// 一次询问（下标从 1 开始）https://codeforces.com/problemset/problem/1141/E
+		// 多次询问（下标从 0 开始）https://codeforces.com/problemset/problem/1490/G
+
 		_ = distanceSum
 	}
 
-	// 分组前缀和（具体见 query 上的注释）
-	// LC1664 https://leetcode-cn.com/contest/weekly-contest-216/problems/ways-to-make-a-fair-array/
+	// 同余前缀和，a 的下标从 0 开始，k 为模数
+	// 具体用法见 query 上的注释
+	// LC1664 https://leetcode-cn.com/problems/ways-to-make-a-fair-array/
+	// https://atcoder.jp/contests/abc288/tasks/abc288_d
 	groupPrefixSum := func(a []int, k int) {
-		// 补 0 简化后续逻辑
-		n := len(a)
-		for len(a)%k > 0 {
-			a = append(a, 0)
-		}
 		sum := make([]int, len(a)+k) // int64
 		for i, v := range a {
 			sum[i+k] = sum[i] + v
 		}
-		pre := func(x, m int) int {
-			if x%k <= m {
-				return sum[x/k*k+m]
+		pre := func(x, t int) int {
+			if x%k <= t {
+				return sum[x/k*k+t]
 			}
-			return sum[(x+k-1)/k*k+m]
+			return sum[(x+k-1)/k*k+t]
 		}
-		// 求下标在 [l,r) 范围内且下标同余于 m 的元素和 (0<=m<k)
-		query := func(l, r, m int) int {
-			return pre(r, m) - pre(l, m)
+		// 求下标在 [l,r) 范围内且下标模 k 同余于 t 的所有元素之和
+		query := func(l, r, t int) int {
+			t %= k
+			return pre(r, t) - pre(l, t)
 		}
-		a = a[:n] // 如果要枚举等，可能需要复原
-
 		_ = query
 	}
 
@@ -659,6 +821,7 @@ func _() {
 
 	// 差分
 	// 浮点数差分（也可以用扫描线）https://atcoder.jp/contests/abc274/tasks/abc274_f
+	// 二阶差分 https://codeforces.com/problemset/problem/1661/D
 
 	// 离散差分，传入闭区间列表 ps，不要求有序
 	// https://codeforces.com/problemset/problem/1420/D
@@ -706,58 +869,36 @@ func _() {
 
 	// 二维差分
 	// https://blog.csdn.net/weixin_43914593/article/details/113782108
+	// 模板题 LC2536 https://leetcode.cn/problems/increment-submatrices-by-one/
+	// LC2132 https://leetcode-cn.com/problems/stamping-the-grid/（也可以不用差分）
 	// https://www.luogu.com.cn/problem/P3397
-	// https://leetcode-cn.com/problems/stamping-the-grid/（也可以不用差分）
+	// LCP74 离散化 https://leetcode.cn/problems/xepqZ5/
 	diff2D := func(n, m int) {
-		diff := make([][]int, n+1)
+		diff := make([][]int, n+2)
 		for i := range diff {
-			diff[i] = make([]int, m+1)
+			diff[i] = make([]int, m+2)
 		}
 		// 将区域 r1<=r<=r2 && c1<=c<=c2 上的数都加上 x
+		// 多 +1 是为了方便求前缀和
 		update := func(r1, c1, r2, c2, x int) {
-			r2++
-			c2++
-			diff[r1][c1] += x
-			diff[r1][c2] -= x
-			diff[r2][c1] -= x
-			diff[r2][c2] += x
+			diff[r1+1][c1+1] += x
+			diff[r1+1][c2+2] -= x
+			diff[r2+2][c1+1] -= x
+			diff[r2+2][c2+2] += x
 		}
-		// 还原二维差分矩阵对应的计数矩阵
-		restore := func() [][]int {
-			ori := make([][]int, n+1)
-			ori[0] = make([]int, m+1)
-			for i, row := range diff[:n] {
-				ori[i+1] = make([]int, m+1)
-				for j, v := range row[:m] {
-					ori[i+1][j+1] = ori[i+1][j] + ori[i][j+1] - ori[i][j] + v
-				}
+		// 直接在 diff 上还原原始矩阵
+		for i := 1; i <= n; i++ {
+			for j := 1; j <= m; j++ {
+				diff[i][j] += diff[i][j-1] + diff[i-1][j] - diff[i-1][j-1]
 			}
-			// 保留 n*m 的计数矩阵
-			ori = ori[1:]
-			for i, row := range ori {
-				ori[i] = row[1:]
-			}
-			return ori
 		}
-		// 直接在 diff 上还原
-		restoreInPlace := func() {
-			for j := 1; j < m; j++ {
-				diff[0][j] += diff[0][j-1]
-			}
-			for i := 1; i < n; i++ {
-				diff[i][0] += diff[i-1][0]
-				for j := 1; j < m; j++ {
-					diff[i][j] += diff[i][j-1] + diff[i-1][j] - diff[i-1][j-1]
-				}
-			}
-			// 保留 n*m 的计数矩阵
-			diff = diff[:n]
-			for i, row := range diff {
-				diff[i] = row[:m]
-			}
+		// 切出中间的 n*m 的原始矩阵
+		diff = diff[1 : n+1]
+		for i, row := range diff {
+			diff[i] = row[1 : m+1]
 		}
 
-		_, _, _ = update, restore, restoreInPlace
+		_ = update
 	}
 
 	reverse := func(a []byte) []byte {
@@ -946,7 +1087,7 @@ func _() {
 	// 离散化，返回离散化后的序列（名次）
 	// discrete([]int{100,20,50,50}, 1) => []int{3,1,2,2}
 	// 有些题目需要把 0 加进去离散化，请特别注意 https://atcoder.jp/contests/jsc2021/tasks/jsc2021_f
-	// https://leetcode-cn.com/contest/biweekly-contest-18/problems/rank-transform-of-an-array/
+	// LC1331 https://leetcode-cn.com/problems/rank-transform-of-an-array/
 	discrete := func(a []int, startIndex int) (kth []int) {
 		type vi struct{ v, i int }
 		ps := make([]vi, len(a))
@@ -1296,7 +1437,7 @@ func _() {
 		pow10, dir4, dir8, perm3, perm4,
 		min, mins, max, maxs, abs, ceil, bin, cmp,
 		ternaryI, ternaryS, zip, zipI, mergeMap, xorSet, rotateCopy, transpose, minString,
-		pow, mul, toAnyBase, digits,
+		pow, mul, gp, toAnyBase, digits,
 		subSum, recoverArrayFromSubsetSum, subSumSorted,
 		prefixSum, groupPrefixSum, circularRangeSum, initSum2D, querySum2D, rowColSum, diagonalSum,
 		contributionSum,

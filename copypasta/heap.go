@@ -35,6 +35,7 @@ https://codeforces.com/problemset/problem/1526/C2
 JSOI07 建筑抢修 https://www.luogu.com.cn/problem/P4053 LC630 https://leetcode-cn.com/problems/course-schedule-iii/
 用堆来不断修正最优决策 https://codeforces.com/problemset/problem/1428/E
 股票买卖 https://codeforces.com/problemset/problem/865/D
+https://atcoder.jp/contests/abc249/tasks/abc249_f
 
 区间贪心相关
 最小不相交区间划分数
@@ -44,6 +45,7 @@ JSOI07 建筑抢修 https://www.luogu.com.cn/problem/P4053 LC630 https://leetcod
 https://codeforces.com/problemset/problem/555/B
 区间最大交集 https://codeforces.com/problemset/problem/754/D
 https://codeforces.com/problemset/problem/1701/D
+区间放球 https://atcoder.jp/contests/abc214/tasks/abc214_e
 */
 
 // 下面这些都是最小堆
@@ -69,7 +71,7 @@ func (h *hp) replace(v int) int {
 // pushPop 将 v 入堆，然后弹出并返回堆顶
 // 使用见下面的 dynamicMedians
 func (h *hp) pushPop(v int) int {
-	if len(h.IntSlice) > 0 && v > h.IntSlice[0] { // 最大堆改成 v < h.IntSlice[0]
+	if h.Len() > 0 && v > h.IntSlice[0] { // 最大堆改成 v < h.IntSlice[0]
 		v, h.IntSlice[0] = h.IntSlice[0], v
 		heap.Fix(h, 0)
 	}
@@ -93,8 +95,8 @@ func (h *hp64) pop() int64         { return heap.Pop(h).(int64) } // 稍微封�
 
 // 支持修改、删除指定元素的堆
 // 用法：调用 push 会返回一个 *viPair 指针，记作 p
-// 将 p 存于他处（如 slice 或 map），可直接在外部修改 p.v 后调用 fix(p.index)，从而做到修改堆中指定元素
-// 调用 remove(p.index) 可以从堆中删除 p.v
+// 将 p 存于他处（如 slice 或 map），可直接在外部修改 p.v 后调用 fix(p.hi)，从而做到修改堆中指定元素
+// 调用 remove(p.hi) 可以从堆中删除 p
 // 例题 https://atcoder.jp/contests/abc170/tasks/abc170_e
 // 模拟 multiset https://codeforces.com/problemset/problem/1106/E
 type viPair struct {
@@ -120,9 +122,9 @@ func (h *mh) remove(i int) *viPair { return heap.Remove(h, i).(*viPair) }
 func dynamicMedians(a []int) []int {
 	n := len(a)
 	medians := make([]int, 0, n)
-	var small, big hp
+	var big, small hp
 	for _, v := range a {
-		if len(small.IntSlice) == len(big.IntSlice) {
+		if len(big.IntSlice) == len(small.IntSlice) {
 			big.push(-small.pushPop(-v))
 		} else {
 			small.push(-big.pushPop(v))
@@ -130,4 +132,80 @@ func dynamicMedians(a []int) []int {
 		medians = append(medians, big.IntSlice[0])
 	}
 	return medians
+}
+
+// 下面是对顶堆模板
+// 可以用来动态维护第 k 小 / 前 k 小的元素之和
+// 还支持调整 k 的值
+// 这里 k 就是 left 的大小
+// 第 k 小 = left.a[0]
+// 前 k 小的元素之和 = left.s
+// 应用见 https://codeforces.com/contest/1374/problem/E2 https://codeforces.com/contest/1374/submission/193671570
+type maxMinHeap struct {
+	left  *maxHp
+	right *minHp
+}
+
+// 向对顶堆中插入 v
+// 保证 left 大小不变
+func (h *maxMinHeap) push(v pair) {
+	h.right.push(h.left.pushPop(v))
+	//h.left.push(h.right.pushPop(v)) // 这样写就是插入 v 的同时扩大 left
+}
+
+// 缩小 left
+func (h *maxMinHeap) l2r() {
+	if h.left.Len() == 0 {
+		panic("h.left is empty")
+	}
+	h.right.push(heap.Pop(h.left).(pair))
+}
+
+// 扩大 left
+func (h *maxMinHeap) r2l() {
+	if h.right.Len() == 0 {
+		panic("h.right is empty")
+	}
+	h.left.push(heap.Pop(h.right).(pair))
+}
+
+type pair struct{ t, i int }
+type minHp struct {
+	a []pair
+	s int // 维护堆中元素之和
+}
+
+func (h minHp) Len() int            { return len(h.a) }
+func (h minHp) Less(i, j int) bool  { return h.a[i].t < h.a[j].t }
+func (h minHp) Swap(i, j int)       { h.a[i], h.a[j] = h.a[j], h.a[i] }
+func (h *minHp) Push(v interface{}) { h.s += v.(pair).t; h.a = append(h.a, v.(pair)) }
+func (h *minHp) Pop() interface{}   { v := h.a[len(h.a)-1]; h.s -= v.t; h.a = h.a[:len(h.a)-1]; return v }
+func (h *minHp) push(v pair)        { heap.Push(h, v) }
+func (h *minHp) pushPop(v pair) pair {
+	if h.Len() > 0 && v.t > h.a[0].t {
+		h.s += v.t - h.a[0].t
+		v, h.a[0] = h.a[0], v
+		heap.Fix(h, 0)
+	}
+	return v
+}
+
+type maxHp struct {
+	a []pair
+	s int
+}
+
+func (h maxHp) Len() int            { return len(h.a) }
+func (h maxHp) Less(i, j int) bool  { return h.a[i].t > h.a[j].t }
+func (h maxHp) Swap(i, j int)       { h.a[i], h.a[j] = h.a[j], h.a[i] }
+func (h *maxHp) Push(v interface{}) { h.s += v.(pair).t; h.a = append(h.a, v.(pair)) }
+func (h *maxHp) Pop() interface{}   { v := h.a[len(h.a)-1]; h.s -= v.t; h.a = h.a[:len(h.a)-1]; return v }
+func (h *maxHp) push(v pair)        { heap.Push(h, v) }
+func (h *maxHp) pushPop(v pair) pair {
+	if h.Len() > 0 && v.t < h.a[0].t {
+		h.s += v.t - h.a[0].t
+		v, h.a[0] = h.a[0], v
+		heap.Fix(h, 0)
+	}
+	return v
 }

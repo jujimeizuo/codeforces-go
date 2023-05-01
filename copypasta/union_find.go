@@ -22,6 +22,20 @@ https://zhuanlan.zhihu.com/p/553192435
 // 并查集时间复杂度证明 https://oi-wiki.org/ds/dsu-complexity/
 //
 // 模板题 https://www.luogu.com.cn/problem/P3367
+// https://atcoder.jp/contests/arc097/tasks/arc097_b
+// 基础题 https://codeforces.com/problemset/problem/1411/C
+// LC305 https://leetcode.cn/problems/number-of-islands-ii/
+// LC1562 https://leetcode.cn/problems/find-latest-group-of-size-m/
+// 数组标记/区间合并相关
+// - [1851. 包含每个查询的最小区间](https://leetcode.cn/problems/minimum-interval-to-include-each-query/)
+// - [2382. 删除操作后的最大子段和](https://leetcode.cn/problems/maximum-segment-sum-after-removals/)
+// - [2334. 元素值大于变化阈值的子数组](https://leetcode.cn/problems/subarray-with-elements-greater-than-varying-threshold/)
+// - [2612. 最少翻转操作数](https://leetcode.cn/problems/minimum-reverse-operations/)
+// - https://codeforces.com/problemset/problem/724/D
+// - https://codeforces.com/problemset/problem/827/A
+// - https://codeforces.com/problemset/problem/1157/E
+// LC2421 https://leetcode.cn/problems/number-of-good-paths/
+// LC2503 https://leetcode.cn/problems/maximum-number-of-points-from-grid-queries/
 // 接水问题 https://codeforces.com/problemset/problem/371/D
 // 三维接雨水 https://www.luogu.com.cn/problem/P5930 LC407 https://leetcode-cn.com/problems/trapping-rain-water-ii/
 // 使某些点不在环上需要删除的最少边数 https://ac.nowcoder.com/acm/contest/7780/C
@@ -36,8 +50,11 @@ https://zhuanlan.zhihu.com/p/553192435
 // 求矩阵的 rank 矩阵 https://codeforces.com/problemset/problem/650/C LC1632 https://leetcode-cn.com/problems/rank-transform-of-a-matrix/submissions/
 // 分组排序套路 LC1998 https://leetcode-cn.com/problems/gcd-sort-of-an-array/
 // 套题 https://blog.csdn.net/weixin_43914593/article/details/104108049 算法竞赛专题解析（3）：并查集
-// [1700] 转换 https://codeforces.com/problemset/problem/1253/D
+// 转换 https://codeforces.com/problemset/problem/1253/D
 // 离散 + 四方向 https://codingcompetitions.withgoogle.com/kickstart/round/0000000000050ff2/0000000000150aac#analysis
+// 技巧：去掉无用数据
+// - https://codeforces.com/problemset/problem/1157/E
+// - https://codeforces.com/problemset/problem/1791/F
 type UnionFind struct {
 	Fa     []int
 	Groups int // 连通分量个数
@@ -102,7 +119,7 @@ func _(n int) {
 
 	{
 		// 离散化版本
-		// https://leetcode.cn/problems/most-stones-removed-with-same-row-or-column/
+		// LC947 https://leetcode.cn/problems/most-stones-removed-with-same-row-or-column/
 		fa := map[int]int{}
 		groups := 0
 		var find func(int) int
@@ -279,7 +296,15 @@ func _(n int) {
 }
 
 // 并查集 - 维护边权（种类）
-// 简单易懂的讲解：https://www.bilibili.com/video/av68342657?p=2
+// 核心在于：
+//    2 ------ 4
+//   /        /
+//  1 ------ 3
+// 如果知道 1->2 的距离和 3->4 的距离，现在告诉你 1->3 的距离
+// 由于 1->3->4 和 1->2->4 的距离相等（相当于从 1 到 4 有两条路径）
+// 那么就可以推出 2->4 的距离为 (1->3) + (3->4) - (1->2)
+//
+// https://www.bilibili.com/video/av68342657?p=2
 // https://cp-algorithms.com/data_structures/disjoint_set_union.html#toc-tgt-11
 // https://cp-algorithms.com/data_structures/disjoint_set_union.html#toc-tgt-12
 // https://oi-wiki.org/ds/dsu/#_9
@@ -292,7 +317,7 @@ func _(n int) {
 // todo https://codeforces.com/contest/1615/problem/D
 //      https://codeforces.com/contest/1713/problem/E
 // 边权：https://codeforces.com/edu/course/2/lesson/7/1/practice/contest/289390/problem/C
-// 边权：LC399 除法求值 https://leetcode-cn.com/problems/evaluate-division/
+// 边权：LC399 除法求值 https://leetcode.cn/problems/evaluate-division/
 func _(n int) {
 	// 注：kinds 为 2 时可以用异或来代替加减法
 	const kinds = 2

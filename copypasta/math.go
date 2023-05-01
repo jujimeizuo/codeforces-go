@@ -96,9 +96,9 @@ https://oeis.org/A064413 EKG sequence (or ECG sequence)
 a(1) = 1; a(2) = 2; for n > 2, a(n) = smallest number not already used which shares a factor with a(n-1)
 
 https://oeis.org/A002326 least m > 0 such that 2n+1 divides 2^m-1
-https://leetcode-cn.com/problems/minimum-number-of-operations-to-reinitialize-a-permutation/
+LC1806 https://leetcode-cn.com/problems/minimum-number-of-operations-to-reinitialize-a-permutation/
 
-http://oeis.org/A003136 Loeschian number: numbers of the form x^2 + xy + y^2
+https://oeis.org/A003136 Loeschian number: numbers of the form x^2 + xy + y^2
 https://en.wikipedia.org/wiki/Loeschian_number
 https://www.bilibili.com/video/BV1or4y1A76q
 
@@ -136,6 +136,23 @@ https://oeis.org/A050295 Number of strongly triple-free subsets of {1, 2, ..., n
 
 https://oeis.org/A005245 The (Mahler-Popken) complexity of n: minimal number of 1's required to build n using + and *
 	3 log_3 n <= a(n) <= 3 log_2 n
+
+https://oeis.org/A001108 a(n)-th triangular number is a square: a(n+1) = 6*a(n) - a(n-1) + 2, with a(0) = 0, a(1) = 1
+https://oeis.org/A001109 a(n)^2 is a triangular number: a(n) = 6*a(n-1) - a(n-2) with a(0)=0, a(1)=1
+https://oeis.org/A001110 Square triangular numbers: numbers that are both triangular and square
+
+https://oeis.org/A034836 Number of ways to write n as n = x*y*z with 1 <= x <= y <= z
+https://oeis.org/A331072 A034836 前缀和 O(n^(2/3))
+	https://atcoder.jp/contests/abc227/tasks/abc227_c
+
+https://oeis.org/A244478 a(0)=2, a(1)=0, a(2)=2; thereafter a(n) = a(n-1-a(n-1))+a(n-2-a(n-2)) unless a(n-1) <= n-1 or a(n-2) <= n-2 in which case the sequence terminates
+https://oeis.org/A244479
+LC1140 https://leetcode.cn/problems/stone-game-ii/ 需要记忆化的 M 的上界
+
+Collatz conjecture (3n+1) https://en.wikipedia.org/wiki/Collatz_conjecture
+https://oeis.org/A006577 Number of halving and tripling steps to reach 1 in '3x+1' problem, or -1 if 1 is never reached
+https://oeis.org/A008884 3x+1 sequence starting at 27
+LC1387 https://leetcode.cn/problems/sort-integers-by-the-power-value/
 
 挑战 2.6 节练习题
 2429 分解 LCM/GCD = a*b 且 gcd(a,b)=1 且 a+b 最小
@@ -189,6 +206,14 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	数组中最小的 LCM(ai,aj) https://codeforces.com/problemset/problem/1154/G
 	分拆与 LCM  https://ac.nowcoder.com/acm/contest/5961/D https://ac.nowcoder.com/discuss/439005
 	TIPS: 一般 LCM 的题目都需要用 LCM=x*y/GCD 转换成研究 GCD 的性质
+	todo https://atcoder.jp/contests/abc162/tasks/abc162_e
+	     https://atcoder.jp/contests/abc206/tasks/abc206_e
+
+	GCD = 1 的子序列个数 https://codeforces.com/problemset/problem/803/F https://ac.nowcoder.com/acm/problem/112055
+	见后面的 mu
+
+	a 中任意两数互质 <=> 每个质数至多整除一个 a[i]
+	https://codeforces.com/contest/1770/problem/C
 
 	todo https://codeforces.com/contest/1462/problem/D 的 O(nlogn) 解法
 
@@ -300,6 +325,7 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 
 	// 统计数组的所有子序列的 GCD 的不同个数，复杂度 O(Clog^2C)
 	// LC1819 https://leetcode-cn.com/problems/number-of-different-subsequences-gcds/
+	// 我的题解 https://leetcode.cn/problems/number-of-different-subsequences-gcds/solution/ji-bai-100mei-ju-gcdxun-huan-you-hua-pyt-get7/
 	countDifferentSubsequenceGCDs := func(a []int, gcd func(int, int) int) (ans int) {
 		const mx int = 4e5 //
 		has := [mx + 1]bool{}
@@ -308,12 +334,12 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 		}
 		for i := 1; i <= mx; i++ {
 			g := 0
-			for j := i; j <= mx; j += i {
-				if has[j] {
-					g = gcd(g, j)
+			for j := i; j <= mx && g != i; j += i { // 枚举 i 的倍数 j
+				if has[j] { // 如果 j 在 nums 中
+					g = gcd(g, j) // 更新最大公约数
 				}
 			}
-			if g == i {
+			if g == i { // 找到一个答案
 				ans++
 			}
 		}
@@ -321,6 +347,7 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	}
 
 	// 最简分数
+	// https://codeforces.com/problemset/problem/1468/F
 	type frac struct{ num, den int64 }
 
 	// 如果有负数需要对 g 取绝对值
@@ -438,18 +465,18 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 
 	/* 质数 质因子分解 */
 
-	// n/2^k http://oeis.org/A000265
+	// n/2^k https://oeis.org/A000265
 	// A000265 的前缀和 https://oeis.org/A135013
 	// a(n) = Sum_{k>=1} (round(n/2^k))^2
 
 	// 质数表 https://oeis.org/A000040
-	// primes[i]%10 http://oeis.org/A007652
-	// 10-primes[i]%10 http://oeis.org/A072003
-	// p-1 http://oeis.org/A006093
-	// p+1 http://oeis.org/A008864
-	// p^2+p+1 http://oeis.org/A060800 = sigma(p^2)
+	// primes[i]%10 https://oeis.org/A007652
+	// 10-primes[i]%10 https://oeis.org/A072003
+	// p-1 https://oeis.org/A006093
+	// p+1 https://oeis.org/A008864
+	// p^2+p+1 https://oeis.org/A060800 = sigma(p^2)
 	// prime index prime https://oeis.org/A006450
-	primes := []int{
+	primes := []int{ // 预处理 mask 的见下
 		2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97,
 		101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199,
 		211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283, 293,
@@ -472,13 +499,31 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 		1901, 1907, 1913, 1931, 1933, 1949, 1951, 1973, 1979, 1987, 1993, 1997, 1999, /* #=303 */
 	}
 
+	{
+		// 小范围质数状压
+		// Squarefree numbers https://oeis.org/A005117
+		const mx = 30
+		primeMask := [mx + 1]int{}
+		for i := 2; i <= mx; i++ {
+			for j, p := range primes {
+				if i%p == 0 {
+					//if i%(p*p) == 0 { // 有平方因子
+					//	primeMask[i] = -1
+					//	break
+					//}
+					primeMask[i] |= 1 << j // 把 j 加到集合中
+				}
+			}
+		}
+	}
+
 	// 第 10^k 个素数
 	// https://oeis.org/A006988
 	// 补充：第 1e5, 2e5, 3e5, ..., 1e6 个素数
 	// 1299709, 2750159, 4256233, 5800079, 7368787, 8960453, 10570841, 12195257, 13834103, 15485863
 	primes10k := []int64{2, 29, 541, 7919, 104729, 1299709, 15485863, /* 1e6 */ 179424673, 2038074743, 22801763489, 252097800623, 2760727302517, 29996224275833, 323780508946331, 3475385758524527, 37124508045065437, 394906913903735329, 4185296581467695669}
 
-	// map{小于 10^n 的素数个数: 小于 10^n 的最大素数} http://oeis.org/A006880 http://oeis.org/A003618   10^n-a(n): http://oeis.org/A033874
+	// map{小于 10^n 的素数个数: 小于 10^n 的最大素数} https://oeis.org/A006880 https://oeis.org/A003618   10^n-a(n): https://oeis.org/A033874
 	primes10 := map[int]int64{
 		4:         7,
 		25:        97,
@@ -492,7 +537,7 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 		455052511: 9999999967,
 	}
 
-	// 大于 10^n 的最小素数 http://oeis.org/A090226 http://oeis.org/A003617    a(n)-10^n: http://oeis.org/A033873
+	// 大于 10^n 的最小素数 https://oeis.org/A090226 https://oeis.org/A003617    a(n)-10^n: https://oeis.org/A033873
 	primes10_ := []int64{
 		2,
 		11,
@@ -516,14 +561,14 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	O(n^(2/3)log^(1/3)(n)) https://codeforces.com/blog/entry/91632
 
 	质数的幂次组成的集合 {p^k} https://oeis.org/A000961
-		补集 https://oeis.org/A024619
-		Exponential of Mangoldt function https://oeis.org/A014963
+	补集 https://oeis.org/A024619
+	Exponential of Mangoldt function https://oeis.org/A014963
 
-	质数前缀和 http://oeis.org/A007504
+	质数前缀和 https://oeis.org/A007504
 	a(n) ~ n^2 * log(n) / 2
 	a(n)^2 - a(n-1)^2 = A034960(n)
-	EXTRA: divide odd numbers into groups with prime(n) elements and add together http://oeis.org/A034960
-		仍然是质数的前缀和 http://oeis.org/A013918 对应的前缀和下标 http://oeis.org/A013916
+	EXTRA: divide odd numbers into groups with prime(n) elements and add together https://oeis.org/A034960
+		仍然是质数的前缀和 https://oeis.org/A013918 对应的前缀和下标 https://oeis.org/A013916
 
 	质数前缀积 prime(n)# https://oeis.org/A002110
 	the least number with n distinct prime factors
@@ -531,12 +576,27 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	6469693230, 200560490130, 7420738134810, 304250263527210, 13082761331670030, 614889782588491410
 
 	质数间隙 https://en.wikipedia.org/wiki/Prime_gap https://oeis.org/A001223
-		Positions of records https://oeis.org/A002386 https://oeis.org/A005669
-		Values of records https://oeis.org/A005250
-		Gap 均值 https://oeis.org/A286888 a(n)= floor((prime(n) - 2)/(n - 1))
-		相关题目 https://www.luogu.com.cn/problem/P6104 https://class.luogu.com.cn/classroom/lgr69
-		https://codingcompetitions.withgoogle.com/kickstart/round/0000000000435a5b/000000000077a8e6
-		Numbers whose distance to the closest prime number is a prime number http://oeis.org/A160666
+	Positions of records https://oeis.org/A002386 https://oeis.org/A005669
+	Values of records https://oeis.org/A005250
+	Gap 均值 https://oeis.org/A286888 a(n)= floor((prime(n) - 2)/(n - 1))
+	相关题目 https://www.luogu.com.cn/problem/P6104 https://class.luogu.com.cn/classroom/lgr69
+	https://codingcompetitions.withgoogle.com/kickstart/round/0000000000435a5b/000000000077a8e6
+	Numbers whose distance to the closest prime number is a prime number https://oeis.org/A160666
+
+	孪生素数 https://en.wikipedia.org/wiki/Twin_prime https://oeis.org/A001359 https://oeis.org/A006512 https://oeis.org/A077800
+	https://oeis.org/A113274 Record gaps between twin primes
+		Upper bound: gaps between twin primes are smaller than 0.76*(log p)^3, where p is the prime at the end of the gap.
+	https://oeis.org/A113275 Lesser of twin primes for which the gap before the following twin primes is a record
+
+	Prime k-tuple https://en.wikipedia.org/wiki/Prime_k-tuple
+	Prime constellations / diameter https://en.wikipedia.org/wiki/Prime_k-tuple#Prime_constellations https://oeis.org/A008407
+	Cousin prime https://en.wikipedia.org/wiki/Cousin_prime https://oeis.org/A023200
+	Sexy prime https://en.wikipedia.org/wiki/Sexy_prime https://oeis.org/A023201
+	Prime triplet https://en.wikipedia.org/wiki/Prime_triplet https://oeis.org/A098420
+	Primes in arithmetic progression https://en.wikipedia.org/wiki/Primes_in_arithmetic_progression
+
+	First Hardy–Littlewood conjecture https://en.wikipedia.org/wiki/First_Hardy%E2%80%93Littlewood_conjecture
+	Second Hardy–Littlewood conjecture https://en.wikipedia.org/wiki/Second_Hardy%E2%80%93Littlewood_conjecture 哈代-李特尔伍德第二猜想
 
 	https://oeis.org/A007918 Least prime >= n (version 1 of the "next prime" function)
 	https://oeis.org/A007920 Smallest number k such that n + k is prime
@@ -550,15 +610,15 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 
 	合数前缀积 Compositorial number https://oeis.org/A036691
 
-	不与质数相邻的合数 http://oeis.org/A079364
+	不与质数相邻的合数 https://oeis.org/A079364
 
 	半素数 https://oeis.org/A001358 也叫双素数/二次殆素数 Semiprimes (or biprimes): products of two primes
-		https://en.wikipedia.org/wiki/Semiprime
-		https://en.wikipedia.org/wiki/Almost_prime
-		非平方半素数 https://oeis.org/A006881 Squarefree semiprimes: Numbers that are the product of two distinct primes.
+	https://en.wikipedia.org/wiki/Semiprime
+	https://en.wikipedia.org/wiki/Almost_prime
+	非平方半素数 https://oeis.org/A006881 Squarefree semiprimes: Numbers that are the product of two distinct primes.
 
 	绝对素数 https://oeis.org/A003459 各位数字可以任意交换位置，其结果仍为素数
-		https://en.wikipedia.org/wiki/Permutable_prime
+	https://en.wikipedia.org/wiki/Permutable_prime
 
 	哥德巴赫猜想：大于 2 的偶数，都可表示成两个素数之和。
 	偶数分拆的最小质数 Goldbach’s conjecture https://oeis.org/A020481
@@ -601,7 +661,7 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 
 	Exponent of highest power of 2 dividing n, a.k.a. the binary carry sequence, the ruler sequence, or the 2-adic valuation of n
 	a(n) = 0 if n is odd, otherwise 1 + a(n/2)
-	http://oeis.org/A007814
+	https://oeis.org/A007814
 
 	https://oeis.org/A000043 Mersenne exponents: primes p such that 2^p - 1 is prime. Then 2^p - 1 is called a Mersenne prime
 
@@ -683,7 +743,7 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 			if pid[i] == 0 {
 				primes = append(primes, i)
 				pid[i] = len(primes)
-				for j := 2 * i; j <= mx; j += i {
+				for j := i * i; j <= mx; j += i {
 					pid[j] = -1
 				}
 			}
@@ -767,13 +827,13 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 
 	// todo 多组数据下的记忆化质因数分解 https://codeforces.com/contest/1512/submission/112590495
 
-	// 质因数分解 prime factorization
+	// 质因数分解（完整版）prime factorization
 	// 返回分解出的质数及其指数
 	// 预处理 [2,√MX] 的素数可以加速这一过程
 	// https://mathworld.wolfram.com/PrimeFactorization.html
 	// todo 更高效的算法 - Pollard's Rho
-	// n 的质因数分解中 2 的幂次 http://oeis.org/A007814
-	// n 的质因数分解中非 2 的幂次之和 http://oeis.org/A087436
+	// n 的质因数分解中 2 的幂次 https://oeis.org/A007814
+	// n 的质因数分解中非 2 的幂次之和 https://oeis.org/A087436
 	type factor struct {
 		p  int64
 		e  int
@@ -781,15 +841,16 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	}
 	factorize := func(x int64) (factors []factor) {
 		for i := int64(2); i*i <= x; i++ {
-			if x%i == 0 {
-				e := 1
-				pe := i
-				for x /= i; x%i == 0; x /= i {
-					e++
-					pe *= i
-				}
-				factors = append(factors, factor{i, e, pe})
+			if x%i > 0 {
+				continue
 			}
+			e := 1
+			pe := i
+			for x /= i; x%i == 0; x /= i {
+				e++
+				pe *= i
+			}
+			factors = append(factors, factor{i, e, pe})
 		}
 		if x > 1 {
 			factors = append(factors, factor{x, 1, x})
@@ -797,22 +858,28 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 		return
 	}
 
-	// primeFactorization 质因数分解
+	// 质因数分解（质数及其幂次）prime factorization
+	// LC2507 https://leetcode.cn/problems/smallest-value-after-replacing-with-sum-of-prime-factors/
+	// LC2584 https://leetcode.cn/problems/split-the-array-to-make-coprime-products/
 	primeDivisors := func(x int64) (primes []int64) {
 		for i := int64(2); i*i <= x; i++ {
-			if x%i == 0 {
-				for x /= i; x%i == 0; x /= i {
-				}
-				primes = append(primes, i)
+			if x%i > 0 {
+				continue
 			}
+			//e := 1
+			for x /= i; x%i == 0; x /= i {
+				//e++
+			}
+			primes = append(primes, i)
 		}
 		if x > 1 {
+			//e := 1
 			primes = append(primes, x)
 		}
 		return
 	}
 
-	// primeFactorization 质因数分解（加速：跳过偶数）
+	// 质因数分解（加速：跳过偶数）prime factorization
 	// 在 1e15 下比上面快大概 150ms
 	// https://codeforces.com/contest/1334/submission/143919621
 	// https://codeforces.com/contest/1334/submission/143919683
@@ -822,11 +889,12 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 			x >>= bits.TrailingZeros64(uint64(x))
 		}
 		for i := int64(3); i*i <= x; i += 2 {
-			if x%i == 0 {
-				for x /= i; x%i == 0; x /= i {
-				}
-				primes = append(primes, i)
+			if x%i > 0 {
+				continue
 			}
+			for x /= i; x%i == 0; x /= i {
+			}
+			primes = append(primes, i)
 		}
 		if x > 1 {
 			primes = append(primes, x)
@@ -944,7 +1012,7 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	    线性筛求法见后面
 	    max(σ(i)), i=1..10^n https://oeis.org/A066410
 	         对应的 n https://oeis.org/A066424
-	    Smallest k such that sigma(k) = n http://oeis.org/A051444
+	    Smallest k such that sigma(k) = n https://oeis.org/A051444
 		σ(n) 前缀和 = ∑{k=1..n} k*floor(n/k) https://oeis.org/A024916
 		https://oeis.org/A001157 sigma_2(n): sum of squares of divisors of n
 		https://oeis.org/A064602 sigma_2 前缀和 = Sum_{i=1..n} i^2 * floor(n/i)
@@ -983,7 +1051,7 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	Number of highly composite numbers not divisible by n https://oeis.org/A199337
 	求出不超过 n 的最大的反质数 https://www.luogu.com.cn/problem/P1463
 
-	Largest divisor of n having the form 2^i*5^j http://oeis.org/A132741
+	Largest divisor of n having the form 2^i*5^j https://oeis.org/A132741
 	a(n) = A006519(n)*A060904(n) = 2^A007814(n)*5^A112765(n)
 
 	Squarefree numbers https://oeis.org/A005117 (介绍了一种筛法)
@@ -1030,33 +1098,6 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 			ds = append(ds, ds2[i])
 		}
 		return
-	}
-
-	divisorPairs := func(n int64) (ds [][2]int64) {
-		for d := int64(1); d*d <= n; d++ {
-			if n%d == 0 {
-				ds = append(ds, [2]int64{d, n / d})
-			}
-		}
-		return
-	}
-
-	doDivisors := func(n int, do func(d int)) {
-		for d := 1; d*d <= n; d++ {
-			if n%d == 0 {
-				do(d)
-				if d*d < n {
-					do(n / d)
-				}
-			}
-		}
-	}
-	doDivisors2 := func(n int, do func(d1, d2 int)) {
-		for d := 1; d*d <= n; d++ {
-			if n%d == 0 {
-				do(d, n/d)
-			}
-		}
 	}
 
 	// Number of odd divisors of n https://oeis.org/A001227
@@ -1120,7 +1161,8 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 		{
 			// 统计因子个数 d(n)
 			// NOTE: 复杂度可以做到线性 https://codeforces.com/contest/920/submission/76859782
-			// 相关 OEIS 见上面的注释块
+			// https://oeis.org/A055507 卷积 Sum_{k=1..n} d(k)*d(n+1-k)
+			// https://atcoder.jp/contests/abc292/tasks/abc292_c
 			const mx int = 1e6
 			d := [mx + 1]int{}
 			for i := 1; i <= mx; i++ {
@@ -1176,7 +1218,7 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 		_, _ = isSquareNumber, halfDivisors
 	}
 
-	// 初始化 Squarefree numbers
+	// 预处理 Squarefree numbers
 	// https://oeis.org/A005117
 	// https://oeis.org/wiki/Squarefree_numbers
 	// 密度（见后面 calcMu 的注释）为 6/Pi^2 ≈ 0.6079
@@ -1212,11 +1254,11 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	//		n*LPF(n) https://oeis.org/A285109
 	// 		n/LPF(n) https://oeis.org/A032742 即 n 的最大因子 = Max{gcd(n,j); j=n+1..2n-1}
 	//
-	//		只考虑奇质数 http://oeis.org/A078701
+	//		只考虑奇质数 https://oeis.org/A078701
 	//
 	// GPF(n): greatest prime dividing n, for n >= 2; a(1)=1 https://oeis.org/A006530
-	//		GPF(p-1) http://oeis.org/A023503
-	//		GPF(p+1) http://oeis.org/A023509
+	//		GPF(p-1) https://oeis.org/A023503
+	//		GPF(p+1) https://oeis.org/A023509
 	// 		GPF 前缀和 https://oeis.org/A046670 前缀积 https://oeis.org/A104350
 	//		n+GPF(n) https://oeis.org/A070229 the next m>n such that GPF(n)|m
 	// 		n-GPF(n) https://oeis.org/A076563
@@ -1228,10 +1270,9 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	// 		n/LPF(n)*GPF(n) https://oeis.org/A130064
 	// 		n/GPF(n)*LPF(n) https://oeis.org/A130065
 	//
+	// https://codeforces.com/problemset/problem/385/C
+	// https://codeforces.com/gym/103107/problem/F (另一种做法是欧拉筛）
 	lpfAll := func() {
-		// 例题 https://codeforces.com/problemset/problem/385/C
-		// https://codeforces.com/gym/103107/problem/F (另一种做法是欧拉筛）
-
 		const mx int = 1e6
 		lpf := [mx + 1]int{1: 1}
 		for i := 2; i <= mx; i++ {
@@ -1273,7 +1314,7 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 				for x /= p; lpf[x] == p; x /= p {
 					e++
 				}
-				// do(p,e) ...
+				// do(p, e) ...
 
 			}
 		}
@@ -1292,14 +1333,55 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 					e++
 				}
 				d := ds
-				for pp := p; e > 0; e-- {
+				for powP := p; e > 0; e-- {
 					for _, d := range d {
-						ds = append(ds, d*pp)
+						ds = append(ds, d*powP)
 					}
-					pp *= p
+					powP *= p
 				}
 			}
 			return ds // append([]int(nil), ds...)
+		}
+
+		// https://oeis.org/A046951 the number of squares dividing n
+		// https://codeforces.com/contest/1822/problem/G2
+		squareDivisors := func(x int) []int { //
+			ds := _ds[:1]
+			for _, p := range primes { // 预处理 U^(1/3) 内的质数
+				p2 := p * p
+				if p2 > x {
+					break
+				}
+				if x%p2 == 0 {
+					e := 1
+					for x /= p2; x%p2 == 0; x /= p2 {
+						e++
+					}
+					d := ds
+					for pp := p; e > 0; e-- {
+						for _, d := range d {
+							ds = append(ds, d*pp)
+						}
+						pp *= p
+					}
+				}
+				if x%p == 0 {
+					x /= p
+				}
+			}
+			if x > 1 {
+				rt := int(math.Sqrt(float64(x)))
+				if rt*rt == x {
+					for _, d := range ds {
+						ds = append(ds, d*rt)
+					}
+				}
+			}
+			// 上面结束后，得到的是 x 的所有平方因子的【平方根】
+			for i := range ds {
+				ds[i] *= ds[i]
+			}
+			return ds
 		}
 
 		// EXTRA: https://oeis.org/A007913 Squarefree part of n (also called core(n))
@@ -1415,6 +1497,8 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 		// EXTRA: https://oeis.org/A008475 质因数分解中，各个 p^e 项之和
 
 		// EXTRA: https://oeis.org/A001414 Integer log of n: sum of primes dividing n (with repetition)
+		// 质因子分解，因子之和
+		// https://oeis.org/A029908 不动点
 		sopfr := func(x int) (s int) {
 			for x > 1 {
 				for p := lpf[x]; lpf[x] == p; x /= p {
@@ -1435,18 +1519,19 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 			return
 		}
 
-		_ = []interface{}{factorize, divisors, core, coreAll, rad, sopfr, sopf}
+		_ = []interface{}{factorize, divisors, squareDivisors, core, coreAll, rad, sopfr, sopf}
 	}
 
-	// 预处理: [2,mx] 范围内数的不同质因子，例如 factors[12] = [2,3]
-	// for i>=2, factors[i][0] == i means i is prime
+	// 预处理质因子
+	// 例如 pf[12] = [2,3]
+	// for i>=2, pf[i][0] == i means i is prime
 	primeFactorsAll := func() {
 		const mx int = 1e6
-		factors := [mx + 1][]int{}
+		pf := [mx + 1][]int{}
 		for i := 2; i <= mx; i++ {
-			if factors[i] == nil {
+			if pf[i] == nil {
 				for j := i; j <= mx; j += i {
-					factors[j] = append(factors[j], i)
+					pf[j] = append(pf[j], i)
 				}
 			}
 		}
@@ -1458,6 +1543,9 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	// https://oeis.org/A007875 Number of ways of writing n as p*q, with p <= q, gcd(p, q) = 1
 	//                          a(n) = 2^(omega(n)-1)
 	//                          相关题目 https://www.luogu.com.cn/problem/T192681?contestId=38351 https://www.luogu.com.cn/blog/LonecharmRiver/Elevator
+	// max omega(<10^n)
+	// 2,3,4,5,6,7,8,8,9             1~9
+	// 10,10,11,12,12,13,13,14,15    10~18
 	distinctPrimesCountAll := func() {
 		const mx int = 1e6
 		omega := make([]int, mx+1) // int8
@@ -1497,7 +1585,7 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 		}
 
 		// EXTRA:
-		// http://oeis.org/A034444 Number of unitary divisors of n (d such that d divides n, gcd(d, n/d) = 1)
+		// https://oeis.org/A034444 Number of unitary divisors of n (d such that d divides n, gcd(d, n/d) = 1)
 		// a(n) = 1<<omega[n]
 		// 另一种说法是，已知 LCM(x,y) 和 GCD(x,y)，求 (x,y) 的数量
 		// 由于 (x/GCD) * (y/GCD) = LCM/GCD，且 x/GCD 和 y/GCD 互质
@@ -1505,7 +1593,7 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 		// 相关题目 https://codeforces.com/problemset/problem/1499/D
 
 		// EXTRA:
-		// http://oeis.org/A007875 Number of ways of writing n as p*q, with p <= q, gcd(p, q) = 1
+		// https://oeis.org/A007875 Number of ways of writing n as p*q, with p <= q, gcd(p, q) = 1
 		// a(n) = 1<<(omega[n]-1)
 	}
 
@@ -1515,13 +1603,14 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	// 比较松的下界 φ(n) >= √(n/2)
 	// https://oi-wiki.org/math/euler/
 	// 前缀和见下面的「phi 求和相关」
-	// NOTE: φ(φ...(n)) 收敛到 1 的迭代次数是 log 级别的：奇数减一，偶数减半 https://oeis.org/A003434
+	// φ(φ...(n)) 收敛到 1 的迭代次数是 log 级别的：奇数减一，偶数减半 https://oeis.org/A003434
+	//      https://codeforces.com/problemset/problem/1797/E
 	// φ(n!) https://oeis.org/A048855
 	//      If n is prime, then a(n) = a(n-1)*(n-1)
 	//      If n is composite, then a(n) = a(n-1)*n
 	//      紫书例题 10-26，UVa11440 https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=26&page=show_problem&problem=2435
 	// GCD(n, φ(n)) https://oeis.org/A009195
-	// n+φ(n) http://oeis.org/A121048
+	// n+φ(n) https://oeis.org/A121048
 	// n-φ(n) https://oeis.org/A051953 called Cototient
 	// n*φ(n) https://oeis.org/A002618 = φ(n^2)
 	// φ(n)|n https://oeis.org/A007694 iff n = 1 or n = 2^w * 3^u for w > 0 and u >= 0
@@ -1551,14 +1640,14 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	//      = (1/2)*Sum_{k>=1} mu(k)*floor(n/k)*floor(1+n/k)
 	//     相关题目 https://codeforces.com/problemset/problem/1009/D
 	// 1, 2, 4, 6, 10, 12, 18, 22, 28, 32, 42, 46, 58, 64, 72, 80, 96, 102
-	// ∑φ(i)-1 http://oeis.org/A015614 #{(x,y): 1<=x<y<=n, gcd(x,y)=1}
+	// ∑φ(i)-1 https://oeis.org/A015614 #{(x,y): 1<=x<y<=n, gcd(x,y)=1}
 	// 0, 1, 3, 5, 9, 11, 17, 21, 27, 31, 41, 45, 57, 63, 71, 79, 95, 101
 
-	// Number of numbers "unrelated to n" http://oeis.org/A045763
+	// Number of numbers "unrelated to n" https://oeis.org/A045763
 	// m < n such that m is neither a divisor of n nor relatively prime to n
 	// a(n) = n + 1 - d(n) - phi(n); where d(n) is the number of divisors of n
 
-	// Unitary totient (or unitary phi) function uphi(n) http://oeis.org/A047994
+	// Unitary totient (or unitary phi) function uphi(n) https://oeis.org/A047994
 
 	// 计算单个数 n 的欧拉函数（互质的数的个数）Euler totient function
 	calcPhi := func(n int) int {
@@ -1714,13 +1803,13 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	}
 
 	/* 同余 逆元
-	http://oeis.org/A006254 a(n) = 2^-1 mod p         Numbers n such that 2n-1 is prime
-	http://oeis.org/A283419 3^-1 mod p
-	http://oeis.org/A006093 (p-1)^-1 mod p     prime(n) - 1
-	http://oeis.org/A040976 (p/2)^-1 mod p     prime(n) - 2
-	http://oeis.org/A090938 Least multiple of n == 1 (mod prime(n))
-	http://oeis.org/A090939 Least multiple of n == -1 (mod prime(n))
-	http://oeis.org/A091185 a(n) = A090938(n)/n      n^-1 mod prime(n)
+	https://oeis.org/A006254 a(n) = 2^-1 mod p         Numbers n such that 2n-1 is prime
+	https://oeis.org/A283419 3^-1 mod p
+	https://oeis.org/A006093 (p-1)^-1 mod p     prime(n) - 1
+	https://oeis.org/A040976 (p/2)^-1 mod p     prime(n) - 2
+	https://oeis.org/A090938 Least multiple of n == 1 (mod prime(n))
+	https://oeis.org/A090939 Least multiple of n == -1 (mod prime(n))
+	https://oeis.org/A091185 a(n) = A090938(n)/n      n^-1 mod prime(n)
 
 	涉及到 0 与逆元的题目
 	https://codeforces.com/problemset/problem/543/D
@@ -2029,7 +2118,7 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	// https://oeis.org/A072994 Number of solutions to x^n ≡ 1 (mod n), 1<=x<=n
 	// Least k > 0 such that the number of solutions to x^k == 1 (mod k) 1 <= x <= k is equal to n, or 0 if no such k exists https://oeis.org/A072995
 
-	// http://oeis.org/A182865 Minimal number of quadratic residues
+	// https://oeis.org/A182865 Minimal number of quadratic residues
 	// a(n) is the least integer m such that any nonzero square is congruent (mod n) to one of the squares from 1 to m^2
 	// 把这题的 1000 改成 i，则至多需要枚举到 a(i) https://ac.nowcoder.com/acm/contest/6489/A
 
@@ -2116,7 +2205,7 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	// Number of ways to choose n disjoint pairs of items from 2*n items
 	// Number of perfect matchings in the complete graph K(2n)
 	// https://atcoder.jp/contests/abc236/tasks/abc236_d
-	// LC1359 有效的快递序列数目 https://leetcode-cn.com/contest/biweekly-contest-20/problems/count-all-valid-pickup-and-delivery-options/
+	// LC1359 有效的快递序列数目 https://leetcode-cn.com/problems/count-all-valid-pickup-and-delivery-options/
 	// 奇阶乘模 2^64 http://acm.hdu.edu.cn/showproblem.php?pid=6481 https://www.90yang.com/hdu6481-a-math-problem/
 	calcOddFactorialBig := func(n int) *big.Int {
 		return new(big.Int).Rsh(new(big.Int).MulRange(int64(n+1), int64(2*n)), uint(n))
@@ -2133,7 +2222,8 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	// = 1, otherwise
 
 	// binomial(n, floor(n/2)) https://oeis.org/A001405
-	// a(n) ~ 2^n / sqrt(π * n/2)
+	// a(n) ~ 2^n / sqrt(π * n/2)     O(2^n/sqrt(n))
+	// a(2n) ~ 4^n / sqrt(πn)         O(4^n/sqrt(n))
 	// 从一个大小为 n 的集合的子集中随机选一个，选到 floor(n/2) 大小的子集的概率约为 1 / sqrt(π * n/2)
 	// Sperner's theorem says that this is the maximal number of subsets of an n-set such that no one contains another
 	// EXTRA: https://oeis.org/A000984 Central binomial coefficients: binomial(2*n,n) = (2*n)!/(n!)^2
@@ -2215,6 +2305,7 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 		}
 
 		// 库默尔定理 https://en.wikipedia.org/wiki/Kummer%27s_theorem
+		// todo https://atcoder.jp/contests/arc137/tasks/arc137_d
 
 		// 可重组合 https://en.wikipedia.org/wiki/Combination#Number_of_combinations_with_repetition
 		// 方案数 H(n,k)=C(n+k-1,k) https://oeis.org/A059481
@@ -2232,7 +2323,7 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 		// https://oeis.org/A000108
 		// 从 n=0 开始：1, 1, 2, 5, 14, 42, 132, 429, 1430, 4862, 16796, 58786, 208012, 742900, 2674440, 9694845, 35357670, 129644790
 		// 所有在 n×n 格点中不越过对角线的单调路径的个数
-		// Number of noncrossing partitions of the n-set (不相交握手问题) LC1259 https://leetcode-cn.com/contest/biweekly-contest-13/problems/handshakes-that-dont-cross/
+		// Number of noncrossing partitions of the n-set (不相交握手问题) LC1259 https://leetcode-cn.com/problems/handshakes-that-dont-cross/
 		// Dyck Path https://mathworld.wolfram.com/DyckPath.html
 		// https://www.luogu.com.cn/problem/P1641
 		//
@@ -2331,7 +2422,7 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	//    将 n 个元素排成 k 个非空循环排列的方法数
 	//    s(n,k) 的递推公式： s(n,k)=(n-1)*s(n-1,k)+s(n-1,k-1), 1<=k<=n-1
 	//    边界条件：s(n,0)=0, n>=1    s(n,n)=1, n>=0
-	//    LC241D https://leetcode-cn.com/contest/weekly-contest-241/problems/number-of-ways-to-rearrange-sticks-with-k-sticks-visible/
+	//    LC1866 https://leetcode-cn.com/problems/number-of-ways-to-rearrange-sticks-with-k-sticks-visible/
 	//    建筑师 https://www.luogu.com.cn/problem/P4609
 	//    UVa1638 https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=825&page=show_problem&problem=4513
 	//    todo https://www.luogu.com.cn/problem/P5408
@@ -2343,6 +2434,7 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	//         https://codeforces.com/problemset/problem/1342/E
 	//    S2(n,k) 的递推公式：S2(n,k)=k*S2(n-1,k)+S2(n-1,k-1), 1<=k<=n-1
 	//    边界条件：S(n,0)=0, n>=1    S(n,n)=1, n>=0
+	//    LC1692 https://leetcode.cn/problems/count-ways-to-distribute-candies/
 	//    https://www.luogu.com.cn/problem/P5395
 	//    todo https://www.luogu.com.cn/problem/P5396
 	//    https://oeis.org/A019538 n 个位置，每个位置填 [1,k] 之间的数，要求每个数字至少出现一次 => k!*S2(n,k)
@@ -2588,6 +2680,7 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	// todo https://www.luogu.com.cn/problem/P2257
 	//  https://www.luogu.com.cn/problem/P2522
 	//  https://www.luogu.com.cn/blog/203623/sol-jrksjr6D https://www.luogu.com.cn/blog/Silver187/qian-lian-di-shi-jie-ti-xie
+	//  GCD=1 的子序列个数 https://codeforces.com/problemset/problem/803/F https://ac.nowcoder.com/acm/problem/112055
 
 	// todo 推式子 https://ac.nowcoder.com/acm/contest/11171/E
 
@@ -2609,9 +2702,10 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	// ∑(n/i)*(n%i) https://ac.nowcoder.com/acm/contest/9005/C
 	// todo https://codeforces.com/contest/1202/problem/F
 	// ∑∑(n%i)*(m%j) 代码见下面的 floorLoop2 https://www.luogu.com.cn/problem/P2260
-	//
-	// 其余相关题目
+	// [L,R] 内任意 k 个不同数字的 GCD 有多少种 https://ac.nowcoder.com/acm/contest/35232/C
+	// https://codeforces.com/problemset/problem/1789/E
 	// https://codeforces.com/contest/938/problem/C
+	// 数论分块优化 DP https://codeforces.com/problemset/problem/1603/C
 	//
 	// https://oeis.org/A257212           Least d>0 such that floor(n/d) - floor(n/(d+1)) <= 1
 	// https://oeis.org/A257213 mex(n/i); Least d>0 such that floor(n/d) = floor(n/(d+1))
@@ -2830,7 +2924,7 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 		sqCheck, cubeCheck, sqrt, cbrt, bottomDiff,
 		gcd, gcdPrefix, gcdSuffix, lcm, lcms, makeFrac, lessFrac, countDifferentSubsequenceGCDs, floorSum,
 		isPrime, sieve, sieveEuler, sieveEulerTemplate, factorize, primeDivisors, primeDivisors2, powerOfFactorialPrimeDivisor, primeExponentsCountAll, primeExponentsCount,
-		divisors, divisorPairs, doDivisors, doDivisors2, oddDivisorsNum, maxSqrtDivisor, divisorsAll, primeFactorsAll, lpfAll, initSquarefreeNumbers, distinctPrimesCountAll,
+		divisors, oddDivisorsNum, maxSqrtDivisor, divisorsAll, primeFactorsAll, lpfAll, initSquarefreeNumbers, distinctPrimesCountAll,
 		calcPhi, initPhi, sievePhi, exPhi,
 		primitiveRoot, primitiveRootsAll,
 		exgcd, solveLinearDiophantineEquations, invM, invP, divM, divP, initAllInv, calcAllInv,
@@ -2852,6 +2946,7 @@ https://en.wikipedia.org/wiki/Enumerative_combinatorics
 https://en.wikipedia.org/wiki/Binomial_theorem
 
 一些组合问题
+https://codeforces.com/problemset/problem/213/B
 https://codeforces.com/problemset/problem/300/C
 https://codeforces.com/problemset/problem/520/E
 https://codeforces.com/problemset/problem/559/C
@@ -2896,7 +2991,7 @@ https://oeis.org/A002109 Hyperfactorials: Product_{k=1..n} k^k
 隔三组合数 https://oeis.org/A024493 https://oeis.org/A024494 https://oeis.org/A024495 C(n,0) + C(n,3) + ... + C(n,3[n/3])
 隔四组合数 https://oeis.org/A038503 https://oeis.org/A038504 https://oeis.org/A038505 https://oeis.org/A000749
 
-Tetrahedral (or triangular pyramidal) numbers: a(n) = C(n+2,3) = n*(n+1)*(n+2)/6 http://oeis.org/A000292
+Tetrahedral (or triangular pyramidal) numbers: a(n) = C(n+2,3) = n*(n+1)*(n+2)/6 https://oeis.org/A000292
 a(n) = Sum_{1<=i<=j<=n} j-i
 a(n) = sum of all the possible products p*q where (p,q) are ordered pairs and p + q = n + 1
 a(n) = 长度为 n 的字符串的所有子串长度之和
@@ -2921,6 +3016,8 @@ https://oeis.org/A000522 Total number of arrangements of a set with n elements: 
                           a(n) = n*a(n-1) + 1, a(0) = 1
                                = floor(e * n!)
 https://oeis.org/A007526 A000522(n)-1 去掉空集
+https://oeis.org/A030297 a(n) = sum_{k=0...n} (n! / k!) * k^2     For n>=2, a(n) = floor(2*e*n! - n - 2)
+https://oeis.org/A019461 Add 1, multiply by 1, add 2, multiply by 2, etc.; start with 0
 
 二阶递推数列通项 https://zhuanlan.zhihu.com/p/75096951
 凯莱公式 Cayley’s formula: the number of trees on n labeled vertices is n^(n-2).
@@ -3021,7 +3118,7 @@ n married couples are seated in a row so that every wife is to the left of her h
 所以结果为 a(n) = (2n)!/2^n https://oeis.org/A000680
 或者见这道题目的背景 LC1359 https://leetcode-cn.com/problems/count-all-valid-pickup-and-delivery-options/
 
-NxN 大小的对称置换矩阵的个数 http://oeis.org/A000085
+NxN 大小的对称置换矩阵的个数 https://oeis.org/A000085
 这里的对称指仅关于主对角线对称
 a[i] = (a[i-1] + (i-1)*a[i-2]) % mod
 The number of n X n symmetric permutation matrices
@@ -3036,7 +3133,7 @@ The number of 3 X n matrices of integers for which the upper-left hand corner is
 the rows and columns are weakly increasing, and two adjacent entries differ by at most 1
 a(n+2) = 5*a(n+1) - 2*a(n), with a(0) = 1, a(1) = 4
 https://oeis.org/A052913
-相关题目 LC1411 https://leetcode-cn.com/problems/number-of-ways-to-paint-n-x-3-grid/ https://leetcode-cn.com/contest/weekly-contest-184/
+相关题目 LC1411 https://leetcode-cn.com/problems/number-of-ways-to-paint-n-x-3-grid/
 
 男厕问题 / 电话问题 https://oeis.org/A185456
 Assume that the first person to use a bank of payphones selects one at the end,

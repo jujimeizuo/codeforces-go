@@ -38,6 +38,12 @@ a(n) = C(n, 2)-n/2+1  n%2==1
 倒水问题 https://www.luogu.com.cn/problem/P1432
 顶点有限制的生成树 https://codeforces.com/problemset/problem/723/F
 
+Trémaux tree https://en.wikipedia.org/wiki/Tr%C3%A9maux_tree
+DFS 树与 BFS 树 https://atcoder.jp/contests/abc251/tasks/abc251_f
+证明 https://atcoder.jp/contests/abc251/editorial/3987
+
+奇妙 BFS https://codeforces.com/problemset/problem/1651/D
+
 竞赛图
 竞赛图的一些性质 https://www.cnblogs.com/acha/p/9042984.html
 - SCC 的拓扑序是唯一的
@@ -145,25 +151,34 @@ func (*graph) readGraphList(in io.Reader, n, m int) {
 	}
 }
 
+// https://atcoder.jp/contests/arc111/tasks/arc111_b
 // EXTRA: 先染色，再递归 https://codeforces.com/problemset/problem/1470/D
 // 无向图后向边定向 https://codeforces.com/problemset/problem/1519/E
+// https://codeforces.com/problemset/problem/1176/E
 func (*graph) dfs(n, st int, g [][]int) {
 	vis := make([]bool, n)
+	var cntV, cntE int
 	var f func(int)
 	f = func(v int) {
 		vis[v] = true
-		// ...
+		cntV++
+		cntE += len(g[v])
 		for _, w := range g[v] {
 			if !vis[w] {
 				f(w)
 			}
 		}
 	}
-	f(st)
-	// 有向图/森林
 	for i, b := range vis {
-		if !b {
-			f(i)
+		if !b { // && len(g[i]) > 0
+			cntV, cntE = 0, 0
+			f(i)      // 注意自环和重边
+			cntE /= 2 // 无向图
+			if cntV-1 == cntE {
+				// 树
+			} else {
+				// 有环
+			}
 		}
 	}
 
@@ -237,6 +252,31 @@ func (*graph) dfs(n, st int, g [][]int) {
 	}
 
 	{
+		// 无向图分类：无环/自环/一般环
+		// https://codeforces.com/contest/1770/problem/D
+		c := 0 // 默认：无环
+		var f func(int, int)
+		f = func(v, fa int) {
+			vis[v] = true
+			for _, w := range g[v] {
+				if w != fa {
+					if w == v {
+						// 自环
+						c = 1
+					} else if vis[w] {
+						// 一般环
+						c = 2
+					} else {
+						f(w, v)
+					}
+				}
+			}
+		}
+		_ = c
+		f(0, -1)
+	}
+
+	{
 		// 无向图: DFS 找长度至少为 k 的环
 		// 注：如果只有一个环（基环树），见 pseudotree
 		// 模板题 https://codeforces.com/problemset/problem/263/D
@@ -296,6 +336,11 @@ func (*graph) calcCC(n int, g [][]int) (comps [][]int, ccIDs []int) {
 	return
 }
 
+// BFS
+// 基础题 https://leetcode.cn/problems/keys-and-rooms/
+// 建模 https://codeforces.com/problemset/problem/1272/E
+// 锻炼分类讨论能力 https://codeforces.com/contest/1790/problem/G
+// 带撤销的 BFS https://codeforces.com/problemset/problem/1721/D
 func (*graph) bfs(n, st int, g [][]int) {
 	vis := make([]bool, n)
 	vis[st] = true
@@ -468,38 +513,47 @@ func (*graph) lexicographicallySmallestShortestPath(g [][]struct{ to, color int 
 
 // BFS 应用：求无向无权图最小环长度
 // 好题 https://codeforces.com/problemset/problem/1325/E
-func (*graph) shortestCycleBFS(n int, g [][]int) int {
+// LC2608 https://leetcode.cn/problems/shortest-cycle-in-a-graph/
+/* 注意不能提前推出（哪怕是遍历完一个找到环的点的所有邻居）
+0 3
+0 5
+3 4
+4 5
+1 9
+1 11
+9 10
+11 10
+2 6
+2 8
+6 7
+8 7
+0 1
+0 2
+1 2
+*/
+func (*graph) shortestCycleBFS(n int, g [][]int, min func(int, int) int) int {
 	const inf int = 1e9
 	ans := inf
-	dist := make([]int, n)
-	for i := range dist {
-		dist[i] = -1
-	}
-	type pair struct{ v, fa int }
+	dis := make([]int, n)
 	for st := range g {
-		vs := []int{st}
-		dist[st] = 0
+		for i := range dis {
+			dis[i] = -1
+		}
+		dis[st] = 0
+		type pair struct{ v, fa int }
 		q := []pair{{st, -1}}
-	outer:
 		for len(q) > 0 {
 			p := q[0]
 			q = q[1:]
 			v, fa := p.v, p.fa
 			for _, w := range g[v] {
-				if dist[w] == -1 {
-					dist[w] = dist[v] + 1
+				if dis[w] == -1 {
+					dis[w] = dis[v] + 1
 					q = append(q, pair{w, v})
-					vs = append(vs, w)
 				} else if w != fa {
-					if l := dist[w] + dist[v] + 1; l < ans {
-						ans = l
-					}
-					break outer
+					ans = min(ans, dis[w]+dis[v]+1)
 				}
 			}
-		}
-		for _, v := range vs {
-			dist[v] = -1
 		}
 	}
 	return ans
@@ -522,10 +576,10 @@ func (*graph) shortestCycleBFS(n int, g [][]int) int {
 // https://algs4.cs.princeton.edu/42digraph/DirectedEulerianCycle.java.html
 // NOTE: 递归前对边排序可保证输出的是字典序最小的路径
 // 模板题（输出顶点）
-//   无向图 https://www.luogu.com.cn/problem/P2731 https://www.luogu.com.cn/problem/P1341
-//   有向图 https://www.luogu.com.cn/problem/P7771 LC332 https://leetcode-cn.com/problems/reconstruct-itinerary/solution/javadfsjie-fa-by-pwrliang/
+// - 无向图 https://www.luogu.com.cn/problem/P2731 https://www.luogu.com.cn/problem/P1341
+// - 有向图 https://www.luogu.com.cn/problem/P7771 LC332 https://leetcode-cn.com/problems/reconstruct-itinerary/solution/javadfsjie-fa-by-pwrliang/
 // 模板题（输出边）
-//   有向图 LC2097/周赛270D https://leetcode-cn.com/problems/valid-arrangement-of-pairs/
+// - 有向图 LC2097 https://leetcode-cn.com/problems/valid-arrangement-of-pairs/
 // 构造 https://ac.nowcoder.com/acm/contest/4010/H
 // 构造 https://codeforces.com/problemset/problem/1511/D
 // 虚点 https://codeforces.com/problemset/problem/723/E
@@ -767,6 +821,7 @@ func (*graph) findBridges(in io.Reader, n, m int) (isBridge []bool) {
 
 // 无向图的双连通分量 Biconnected Components (BCC)          也叫重连通图
 // v-BCC：任意割点都是至少两个不同 v-BCC 的公共点              广义圆方树
+// 每个 v-BCC 的点数就是一个极大环，所有即
 // https://oi-wiki.org/graph/bcc/
 // https://www.csie.ntu.edu.tw/~hsinmu/courses/_media/dsa_13spring/horowitz_306_311_biconnected.pdf
 // 好题 https://codeforces.com/problemset/problem/962/F
@@ -888,7 +943,7 @@ func (G *graph) findVertexBCC(g [][]int, min func(int, int) int) (comps [][]int,
 }
 
 // e-BCC：删除无向图中所有的割边后，剩下的每一个 CC 都是 e-BCC
-// 缩点后形成一颗 bridge tree
+// 缩点后形成一棵 bridge tree
 // 模板题 https://codeforces.com/problemset/problem/1000/E
 // 较为综合的一道题 http://codeforces.com/problemset/problem/732/F
 func (G *graph) findEdgeBCC(in io.Reader, n, m int) (comps [][]int, bccIDs []int) {
@@ -946,24 +1001,25 @@ func (G *graph) findEdgeBCC(in io.Reader, n, m int) (comps [][]int, bccIDs []int
 	return
 }
 
-type vdPair struct {
+type dijkstraPair struct {
 	v   int
 	dis int64
 }
-type vdHeap []vdPair
+type dijkstraHeap []dijkstraPair
 
-func (h vdHeap) Len() int              { return len(h) }
-func (h vdHeap) Less(i, j int) bool    { return h[i].dis < h[j].dis }
-func (h vdHeap) Swap(i, j int)         { h[i], h[j] = h[j], h[i] }
-func (h *vdHeap) Push(v interface{})   { *h = append(*h, v.(vdPair)) }
-func (h *vdHeap) Pop() (v interface{}) { a := *h; *h, v = a[:len(a)-1], a[len(a)-1]; return }
-func (h *vdHeap) push(v vdPair)        { heap.Push(h, v) }
-func (h *vdHeap) pop() vdPair          { return heap.Pop(h).(vdPair) }
+func (h dijkstraHeap) Len() int              { return len(h) }
+func (h dijkstraHeap) Less(i, j int) bool    { return h[i].dis < h[j].dis }
+func (h dijkstraHeap) Swap(i, j int)         { h[i], h[j] = h[j], h[i] }
+func (h *dijkstraHeap) Push(v interface{})   { *h = append(*h, v.(dijkstraPair)) }
+func (h *dijkstraHeap) Pop() (v interface{}) { a := *h; *h, v = a[:len(a)-1], a[len(a)-1]; return }
+func (h *dijkstraHeap) push(v dijkstraPair)  { heap.Push(h, v) }
+func (h *dijkstraHeap) pop() dijkstraPair    { return heap.Pop(h).(dijkstraPair) }
 
 // 单源最短路 Dijkstra
 // 适用于稀疏图 O(mlogm)
 // 根据《算法(第4版)》，这里实现的是 lazy 版本的 Dijkstra，复杂度为 O(mlogm)；若在插入堆时元素已在堆中，改成更新元素而不是插入元素可使复杂度降为 O(mlogn)
 // st 也可以是一个点集，这相当于同时对多个点跑最短路
+// 视频讲解（第四题）https://www.bilibili.com/video/BV1wj411G7sH/
 // 可视化 https://visualgo.net/zh/sssp
 // https://oi-wiki.org/graph/shortest-path/#dijkstra
 // 最短路问题笔记 https://www.luogu.com.cn/blog/SCN/zui-duan-lu-wen-ti-bi-ji
@@ -974,8 +1030,11 @@ func (h *vdHeap) pop() vdPair          { return heap.Pop(h).(vdPair) }
 // 最短路个数 https://www.luogu.com.cn/problem/P1608
 // 通过最短路找到可以删除的边 https://codeforces.com/problemset/problem/449/B
 // 稠密图 https://atcoder.jp/contests/arc064/tasks/arc064_c
+// 【理解本质】https://atcoder.jp/contests/abc271/tasks/abc271_e
 // 建模 https://www.luogu.com.cn/problem/P4644
 // 建模 LC864 https://leetcode-cn.com/problems/shortest-path-to-get-all-keys/
+// 还能再走多远？LC882 https://leetcode.cn/problems/reachable-nodes-in-subdivided-graph/
+// 转换 LC2577 https://leetcode.cn/problems/minimum-time-to-visit-a-cell-in-a-grid/
 // 建模【好题】https://codeforces.com/contest/1528/problem/D
 // 转换 https://atcoder.jp/contests/abc237/tasks/abc237_e
 // 双关键字+记录路径编号 https://codeforces.com/problemset/problem/507/E
@@ -995,7 +1054,7 @@ func (h *vdHeap) pop() vdPair          { return heap.Pop(h).(vdPair) }
 // todo https://xyzl.blog.luogu.org/Shortest-Path-Tree-SPT
 // 最短路树上跑拓扑排序 https://codeforces.com/contest/1076/problem/D
 // todo https://codeforces.com/problemset/problem/1005/F
-// todo https://codeforces.com/problemset/problem/545/E
+// todo MST https://codeforces.com/problemset/problem/545/E
 func (*graph) shortestPathDijkstra(in io.Reader, n, m, st int) (dist []int64) {
 	type neighbor struct {
 		to int
@@ -1023,7 +1082,7 @@ func (*graph) shortestPathDijkstra(in io.Reader, n, m, st int) (dist []int64) {
 	for i := range fa {
 		fa[i] = -1
 	}
-	h := vdHeap{{st, 0}}
+	h := dijkstraHeap{{st, 0}}
 	for len(h) > 0 {
 		p := h.pop()
 		v := p.v
@@ -1036,7 +1095,7 @@ func (*graph) shortestPathDijkstra(in io.Reader, n, m, st int) (dist []int64) {
 			if newD := dist[v] + e.wt; newD < dist[w] {
 				dist[w] = newD
 				fa[w] = v
-				h.push(vdPair{w, dist[w]})
+				h.push(dijkstraPair{w, dist[w]})
 			}
 		}
 	}
@@ -1107,7 +1166,7 @@ func (*graph) shortestPathDijkstra(in io.Reader, n, m, st int) (dist []int64) {
 
 	// EXTRA: 次短路
 	// 模板题 https://www.luogu.com.cn/problem/P2865
-	// LC2045/周赛263D https://leetcode-cn.com/problems/second-minimum-time-to-reach-destination/
+	// LC2045 https://leetcode-cn.com/problems/second-minimum-time-to-reach-destination/
 	// 次短路计数 https://www.acwing.com/problem/content/385/ https://codeforces.com/contest/1650/problem/G
 	// 长度不超过最短路长度+K 的路径个数 [NOIP2017 提高组] 逛公园 https://www.luogu.com.cn/problem/P3953
 	{
@@ -1121,7 +1180,7 @@ func (*graph) shortestPathDijkstra(in io.Reader, n, m, st int) (dist []int64) {
 		for i := range dist2 {
 			dist2[i] = inf
 		}
-		h := vdHeap{{st, 0}}
+		h := dijkstraHeap{{st, 0}}
 		for len(h) > 0 {
 			p := h.pop()
 			v, d := p.v, p.dis
@@ -1132,11 +1191,11 @@ func (*graph) shortestPathDijkstra(in io.Reader, n, m, st int) (dist []int64) {
 				w := e.to
 				newD := d + e.wt
 				if newD < dist[w] {
-					h.push(vdPair{w, newD})
+					h.push(dijkstraPair{w, newD})
 					dist[w], newD = newD, dist[w]
 				}
 				if dist[w] < newD && newD < dist2[w] {
-					h.push(vdPair{w, newD})
+					h.push(dijkstraPair{w, newD})
 					dist2[w] = newD
 				}
 			}
@@ -1150,11 +1209,11 @@ func (*graph) shortestPathDijkstra(in io.Reader, n, m, st int) (dist []int64) {
 // 另一种 Dijkstra 写法
 // 适用于稠密图 O(n^2)
 // 建模 https://codeforces.com/contest/1528/problem/D
-func (*graph) shortestPathDijkstra2(g [][]int64, st int) (dis []int64) {
+func (*graph) shortestPathDijkstra2(g [][]int64, st int) []int64 {
 	n := len(g)
 
 	const inf int64 = 1e18 // 1e9+1
-	dis = make([]int64, n)
+	dis := make([]int64, n)
 	for i := range dis {
 		dis[i] = inf
 	}
@@ -1168,7 +1227,7 @@ func (*graph) shortestPathDijkstra2(g [][]int64, st int) (dis []int64) {
 			}
 		}
 		if v < 0 {
-			return
+			return dis
 		}
 		vis[v] = true
 		for w, wt := range g[v] {
@@ -1230,6 +1289,7 @@ func (*graph) bfs01(g [][]struct{ to, wt int }, st int) []int {
 //
 // 模板题 https://www.luogu.com.cn/problem/P3385
 // 用到 Bellman-Ford 的思想 LC1928 https://leetcode.cn/problems/minimum-cost-to-reach-destination-in-time/
+// 边权递增最短路 http://acm.hdu.edu.cn/showproblem.php?pid=4479
 //
 // EXTRA: 差分约束系统
 // 若有 Xi-Xj<=Ck，则连一条有向边 j->i，边权为 Ck
@@ -1305,42 +1365,69 @@ func (*graph) shortestPathSPFA(in io.Reader, n, m, st int) (dist []int64) { // �
 // 题目推荐 https://cp-algorithms.com/graph/all-pair-shortest-path-floyd-warshall.html#toc-tgt-5
 // https://codeforces.com/problemset/problem/1204/C
 // 理解原理 https://codeforces.com/problemset/problem/295/B
+// todo https://atcoder.jp/contests/abc243/tasks/abc243_e
 // 传递闭包 UVa247 https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=4&page=show_problem&problem=183
 // 注：求传递闭包时，若 i-k 不连通，则最内层循环无需运行
 // 任意两点最大边权最小路径 UVa10048 https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=12&page=show_problem&problem=989
 func (*graph) shortestPathFloydWarshall(dis [][]int, min func(int, int) int) [][]int {
-	// dis[k][i][j] 表示「经过若干个编号不超过 k 的节点」时，从 i 到 j 的最短路长度，其中第一维可以压缩掉
-	for k := range dis { // 阶段
+	// dis[k][i][j] 表示「经过若干个编号不超过 k 的中间节点」时，从 i 到 j 的最短路长度，其中第一维可以压缩掉
+	// 为什么可以把第一维度去掉？dis[i][k] 和 dis[k][j] 不会被覆盖掉吗？
+	// 见算法导论第三版练习 25.2-4（网络上有习题解答）
+	for k := range dis { // 阶段（中间节点的最大编号）
 		for i := range dis { // 状态
-			for j := range dis { // 决策
+			for j := range dis { // 决策（k 不是中间节点，k 是中间节点）
 				dis[i][j] = min(dis[i][j], dis[i][k]+dis[k][j])
 			}
 		}
 	}
+
+	// 动态加边
+	// LC2646 https://leetcode.cn/problems/minimize-the-total-price-of-the-trips/
+	for i := range dis {
+		// 注意 from=i 或者 to=j 时，下面的 dis[i][from] 和 dis[to][j] 都需要 dis[i][i] 这样的值
+		// 所以初始化成 0 方便计算
+		dis[i][i] = 0
+	}
+	addEdge := func(from, to int, wt int) { // wt int64
+		// 无法让任何最短路变短
+		if wt >= dis[from][to] {
+			return
+		}
+		for i := range dis {
+			for j := range dis {
+				dis[i][j] = min(dis[i][j], dis[i][from]+wt+dis[to][j])
+			}
+		}
+	}
+	_ = addEdge
+
 	return dis
 }
 
 // 位压缩版 O(n^3/w)
-// LC双周赛67C https://leetcode-cn.com/problems/detonate-the-maximum-bombs/
+// LC2101 https://leetcode-cn.com/problems/detonate-the-maximum-bombs/
+// https://atcoder.jp/contests/abc287/tasks/abc287_h
 func (*graph) floydWarshallBitset(in io.Reader, n, m int) []int {
 	vs := make([]Bitset, n) // vs[i] 表示从 i 出发可以到达的节点
 	for i := range vs {
 		vs[i] = NewBitset(n)
-		vs[i].Set(i)
+		vs[i].Set(i) // i 可以到达 i
 	}
 	for i := 0; i < m; i++ {
 		var v, w int
 		Fscan(in, &v, &m)
-		vs[v].Set(w) // 有向边
+		//v--
+		//w--
+		vs[v].Set(w) // 有向边 v->w
 	}
-	for k := range vs { // 阶段
+	for k := range vs { // 阶段（中间节点的最大编号）
 		for i := range vs { // 状态
 			if vs[i].Has(k) {
-				vs[i].MergeFrom(vs[k]) // 决策
+				vs[i].MergeFrom(vs[k]) // 决策   i->j 现在可以 i->k->j
 			}
 		}
 	}
-	reach := make([]int, n) // reach[i] 表示从 i 出发可以到达的节点数
+	reach := make([]int, n) // reach[i] 表示从 i 出发可以到达的节点数（注意读题，一般都要包括自己）
 	for i, bs := range vs {
 		reach[i] = bs.OnesCount()
 	}
@@ -1452,12 +1539,14 @@ func (G *graph) shortestPathJohnson(in io.Reader, n, m int) [][]int64 {
 // https://oi-wiki.org/graph/mst/#kruskal
 // 模板题 https://www.luogu.com.cn/problem/P3366 https://codeforces.com/edu/course/2/lesson/7/2/practice/contest/289391/problem/E
 // 题目推荐 https://cp-algorithms.com/graph/mst_kruskal.html#toc-tgt-5
-// 关键边、伪关键边（与割边结合）https://codeforces.com/problemset/problem/160/D
-// 判断给定的边是否均在同一颗 MST 中 https://codeforces.com/problemset/problem/891/C
+// 需要一些数论知识 https://atcoder.jp/contests/abc210/tasks/abc210_e
+// 枚举 https://atcoder.jp/contests/abc270/tasks/abc270_f
+// 关键边、伪关键边（与割边结合）https://codeforces.com/problemset/problem/160/D LC1489 https://leetcode.cn/problems/find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree/
+// 判断给定的边是否均在同一棵 MST 中 https://codeforces.com/problemset/problem/891/C
 // 二分图无环 https://codeforces.com/problemset/problem/1408/E
 // 与 LCA 结合 https://codeforces.com/problemset/problem/733/F
 // 最小生成树的最长边：Kruskal 中最后一条加入 MST 中的边的长度 https://www.luogu.com.cn/problem/P1547
-// EXTRA: 与树链剖分结合可以在线查询两点间路径最大边权的最小值 https://leetcode-cn.com/contest/weekly-contest-220/problems/checking-existence-of-edge-length-limited-paths/
+// EXTRA: 与树链剖分结合可以在线查询两点间路径最大边权的最小值 https://leetcode-cn.com/problems/checking-existence-of-edge-length-limited-paths/
 func (*graph) mstKruskal(in io.Reader, n, m int) int64 {
 	type edge struct {
 		v, w int
@@ -1896,7 +1985,7 @@ func (*graph) manhattanMST(points []struct{ x, y, i int }, abs func(int) int) (m
 	}
 	build()
 	for i := range points {
-		points[i].x = - points[i].x
+		points[i].x = -points[i].x
 	}
 	build()
 	for i := range points {
@@ -2068,7 +2157,10 @@ func (*graph) msaEdmonds(n, root int, edges [][3]int) (ans int64) {
 }
 
 // 反图的连通分量 O(n+m)
+// 这个算法是我独自想出来的 :)
 // https://www.luogu.com.cn/blog/endlesscheng/solution-cf1242b
+// https://codeforces.com/blog/entry/93652
+//
 // https://codeforces.com/contest/190/problem/E
 // https://codeforces.com/contest/920/problem/E
 // https://codeforces.com/contest/1242/problem/B
@@ -2144,7 +2236,8 @@ func (*graph) inverseGraphComponents(n int, g [][]int) [][]int {
 // https://oi-wiki.org/graph/bi-graph/#_3
 // https://cp-algorithms.com/graph/bipartite-check.html
 //
-// 模板题 https://codeforces.com/problemset/problem/1093/D
+// 模板题 LC886 https://leetcode.cn/problems/possible-bipartition/
+// https://codeforces.com/problemset/problem/1093/D
 // https://www.luogu.com.cn/problem/P6185
 // https://codeforces.com/problemset/problem/1537/F
 // 转换 https://codeforces.com/problemset/problem/85/E
@@ -2266,6 +2359,7 @@ DAG 上的最小路径覆盖，要求路径之间不相交，即每个顶点恰�
 //
 // 模板题 https://www.luogu.com.cn/problem/P3386
 // LCP04 https://leetcode-cn.com/problems/broken-board-dominoes/
+// LC2123 https://leetcode.cn/problems/minimum-operations-to-remove-adjacent-ones-in-matrix/
 //【网络流 24 题】飞行员配对方案 https://loj.ac/p/6000 https://www.luogu.com.cn/problem/P2756
 //【网络流 24 题】骑士共存（这题 Dinic 更快）https://loj.ac/p/6226 https://www.luogu.com.cn/problem/P3355
 // todo https://codeforces.com/contest/1404/problem/E
@@ -2354,8 +2448,12 @@ func (*graph) maxBipartiteMatchingHopcroftKarp(n int, g [][]int) (match []int, c
 // http://acm.hdu.edu.cn/showproblem.php?pid=2426
 // EXTRA: 带权二分图最小边覆盖
 // 转换成带权二分图最大匹配 https://cstheory.stackexchange.com/questions/14690/reducing-a-minimum-cost-edge-cover-problem-to-minimum-cost-weighted-bipartie-per
-// LC1595/周赛207D https://leetcode-cn.com/problems/minimum-cost-to-connect-two-groups-of-points/solution/kai-kai-yan-jie-zhuan-huan-cheng-zui-da-dai-quan-p/
-// LC1947/周赛251C https://leetcode-cn.com/problems/maximum-compatibility-score-sum/
+// LC1066 https://leetcode.cn/problems/campus-bikes-ii/
+// LC1595 https://leetcode-cn.com/problems/minimum-cost-to-connect-two-groups-of-points/solution/kai-kai-yan-jie-zhuan-huan-cheng-zui-da-dai-quan-p/
+// LC1879 https://leetcode.cn/problems/minimum-xor-sum-of-two-arrays/
+// LC1947 https://leetcode-cn.com/problems/maximum-compatibility-score-sum/
+// LC2172 https://leetcode.cn/problems/maximum-and-sum-of-array/
+// LC2403 https://leetcode.cn/problems/minimum-time-to-kill-all-monsters/
 // todo GCJ21 Round2D https://codingcompetitions.withgoogle.com/codejam/round/0000000000435915/00000000007dc2de
 func (*graph) maxWeightedBipartiteMatchingKuhnMunkresSlow(wt [][]int64) (match []int, sum int64) {
 	const inf int64 = 1e18
@@ -2530,11 +2628,13 @@ func (*graph) maxWeightedBipartiteMatchingKuhnMunkres(wt [][]int64) (match []int
 // 可以用来判断有向图是否有环、求 DAG 上的 DP 等
 // https://oi-wiki.org/graph/topo/
 // https://cp-algorithms.com/graph/topological-sort.html
-// DAG DP LC2050/周赛264D https://leetcode-cn.com/problems/parallel-courses-iii/
-//        LC1857/周赛240D https://leetcode-cn.com/problems/largest-color-value-in-a-directed-graph/
+// 树上拓扑+记录变成叶子的时间 LC2603 https://leetcode.cn/problems/collect-coins-in-a-tree/
+// DAG DP LC2050 https://leetcode-cn.com/problems/parallel-courses-iii/
+//        LC1857 https://leetcode-cn.com/problems/largest-color-value-in-a-directed-graph/
 //        https://ac.nowcoder.com/acm/contest/6384/C
 //        https://www.luogu.com.cn/problem/P3387
 //        https://codeforces.com/problemset/problem/721/C
+// 删点 LC310 https://leetcode.cn/problems/minimum-height-trees/
 // 好题 https://codeforces.com/problemset/problem/915/D
 // 关键点 次关键点 https://codeforces.com/contest/1062/problem/F
 // 混合图拓扑排序+定向 https://codeforces.com/problemset/problem/1385/E
@@ -2544,6 +2644,7 @@ func (*graph) maxWeightedBipartiteMatchingKuhnMunkres(wt [][]int64) (match []int
 // 与堆结合 https://codeforces.com/problemset/problem/825/E
 //         https://codeforces.com/problemset/problem/1283/F
 // 利用拓扑思想 https://codeforces.com/problemset/problem/1037/E
+// https://codeforces.com/problemset/problem/1572/A
 // 拓扑序是否唯一：任意时刻队列中不能有超过一个元素
 // - LC444 https://leetcode.cn/problems/sequence-reconstruction/
 // 检查一个序列是否为拓扑序，可以仿造拓扑排序的算法，从前往后检查节点的入度是否为 0，然后减少相邻节点的入度，直到找到一个入度不为 0 的点或者遍历到末尾
@@ -2859,13 +2960,16 @@ func (G *graph) solve2SAT(n, m int) []bool {
 // todo https://www.luogu.com.cn/blog/user52918/qian-tan-ji-huan-shu
 // todo 题单 https://www.luogu.com.cn/blog/ShadderLeave/ji-huan-shu-bi-ji
 //
-// LC2127/周赛274D https://leetcode-cn.com/problems/maximum-employees-to-be-invited-to-a-meeting/
-// 周赛304C 单源最短路 https://leetcode.cn/problems/find-closest-node-to-given-two-nodes/
-// 周赛304D 最长环 https://leetcode.cn/problems/longest-cycle-in-a-graph/
+// LC2127 https://leetcode-cn.com/problems/maximum-employees-to-be-invited-to-a-meeting/
+// LC2359 单源最短路 https://leetcode.cn/problems/find-closest-node-to-given-two-nodes/
+// LC2360 最长环 https://leetcode.cn/problems/longest-cycle-in-a-graph/
 // 计数 https://codeforces.com/problemset/problem/711/D
 // https://codeforces.com/problemset/problem/1027/D
 // https://codeforces.com/problemset/problem/1335/F
 // 拆点 https://codeforces.com/problemset/problem/1200/F
+// https://codeforces.com/contest/1770/problem/D
+// https://atcoder.jp/contests/abc266/tasks/abc266_f
+// 删除一条边使得直径最长 https://ac.nowcoder.com/acm/contest/9977/c
 // todo [IOI2008] 岛屿 https://www.luogu.com.cn/problem/P4381
 // todo [NOI2013] 快餐店 https://www.luogu.com.cn/problem/P1399
 func (*graph) pseudotree(g []int) { // g 为内向基环树（森林）
@@ -2931,9 +3035,19 @@ func (*graph) pseudotree(g []int) { // g 为内向基环树（森林）
 	{
 		// EXTRA: 无向图的情况
 		// 去掉树枝后，剩余点的度数均超过 1
-		g := [][]int{}
-		deg := []int{}
-		// read ...
+		var n int
+		g := make([][]int, n)
+		deg := make([]int, len(g))
+		//for i := 0; i < len(g); i++ {
+		//  var v, w int
+		//	Fscan(in, &v, &w)
+		//	v--
+		//	w--
+		//	g[v] = append(g[v], w)
+		//	g[w] = append(g[w], v)
+		//	deg[v]++
+		//	deg[w]++
+		//}
 
 		q := []int{}
 		for i, d := range deg {
@@ -2974,6 +3088,27 @@ func (*graph) pseudotree(g []int) { // g 为内向基环树（森林）
 			}
 		}
 
+		{
+			// EXTRA：给每个树枝编号
+			ids := make([]int, n)
+			id := 0
+			var f func(int, int)
+			f = func(v, fa int) {
+				ids[v] = id
+				for _, w := range g[v] {
+					if w != fa && deg[w] < 2 {
+						f(w, v)
+					}
+				}
+			}
+			for i, d := range deg {
+				if d > 1 {
+					id++
+					f(i, -1)
+				}
+			}
+		}
+
 		// EXTRA: 求基环
 		var cycle []int
 		for i, d := range deg {
@@ -3002,10 +3137,13 @@ func (*graph) pseudotree(g []int) { // g 为内向基环树（森林）
 
 /* 网络流·总结·题单 ################################################################################
 
+最大流等于最小割的证明 https://seineo.github.io/%E5%9B%BE%E8%AE%BA%EF%BC%9A%E6%9C%80%E5%A4%A7%E6%B5%81%E6%9C%80%E5%B0%8F%E5%89%B2%E8%AF%A6%E8%A7%A3.html
+
 todo 网络流建模方式总结
  https://www.cnblogs.com/victorique/p/8560656.html
  https://blog.bill.moe/network-flow-models/
  NOI 一轮复习 I：二分图网络流 https://www.luogu.com.cn/blog/ix-35/noi-yi-lun-fu-xi-i-er-fen-tu-wang-lao-liu
+ 2016 国家集训队论文《网络流的一些建模方法》姜志豪 https://github.com/enkerewpo/OI-Public-Library/blob/master/IOI%E4%B8%AD%E5%9B%BD%E5%9B%BD%E5%AE%B6%E5%80%99%E9%80%89%E9%98%9F%E8%AE%BA%E6%96%87/%E5%9B%BD%E5%AE%B6%E9%9B%86%E8%AE%AD%E9%98%9F2016%E8%AE%BA%E6%96%87%E9%9B%86.pdf
 
 todo 网络流 24 题 https://loj.ac/p?tagIds=30 https://www.luogu.com.cn/problem/list?tag=332
  线性规划与网络流 24 题 解题报告 https://byvoid.com/zhs/blog/lpf24-solution/
@@ -3162,7 +3300,7 @@ todo https://codeforces.com/problemset/problem/362/E
 从集合 B 中各点连容量为 1 费用为 0 的边到汇点
 集合 A 和 B 之间连边，容量为 inf，费用为 F(Ai,Bj)，F 根据题意
 这样跑 MCMF 得到的结果是匹配全部 A（或 B）的最小花费
-LC2172/周赛280D https://leetcode-cn.com/problems/maximum-and-sum-of-array/
+LC2172 https://leetcode-cn.com/problems/maximum-and-sum-of-array/
 https://codeforces.com/problemset/problem/1437/C
 【网络流 24 题】运输问题 https://loj.ac/p/6011 https://www.luogu.com.cn/problem/P4015
 【网络流 24 题】数字梯形 https://loj.ac/p/6010 https://www.luogu.com.cn/problem/P4013
@@ -3453,16 +3591,16 @@ o:
 // https://www.luogu.com.cn/blog/ONE-PIECE/jiu-ji-di-zui-tai-liu-suan-fa-isap-yu-hlpp
 // 模板题 https://loj.ac/p/127 https://www.luogu.com.cn/problem/P4722
 // todo deque 优化 + 全局重贴标签等 https://www.luogu.com.cn/problem/solution/P4722
-type dh struct {
+type hlppHeap struct {
 	sort.IntSlice
 	d []int
 }
 
-func (h dh) Less(i, j int) bool  { return h.d[h.IntSlice[i]] > h.d[h.IntSlice[j]] } // 处于堆中的节点的 d 值不会改变，所以可以直接比较
-func (h *dh) Push(v interface{}) { h.IntSlice = append(h.IntSlice, v.(int)) }
-func (h *dh) Pop() interface{}   { a := h.IntSlice; v := a[len(a)-1]; h.IntSlice = a[:len(a)-1]; return v }
-func (h *dh) push(v int)         { heap.Push(h, v) }
-func (h *dh) pop() int           { return heap.Pop(h).(int) }
+func (h hlppHeap) Less(i, j int) bool { return h.d[h.IntSlice[i]] > h.d[h.IntSlice[j]] } // 处于堆中的节点的 d 值不会改变，所以可以直接比较
+func (h *hlppHeap) Push(v any)        { h.IntSlice = append(h.IntSlice, v.(int)) }
+func (h *hlppHeap) Pop() any          { a := h.IntSlice; v := a[len(a)-1]; h.IntSlice = a[:len(a)-1]; return v }
+func (h *hlppHeap) push(v int)        { heap.Push(h, v) }
+func (h *hlppHeap) pop() int          { return heap.Pop(h).(int) }
 
 func (*graph) maxFlowHLPP(in io.Reader, n, m, st, end int, min func(int, int) int) int {
 	st--
@@ -3507,7 +3645,7 @@ func (*graph) maxFlowHLPP(in io.Reader, n, m, st, end int, min func(int, int) in
 	d[st] = n
 
 	exFlow := make([]int, n)
-	q := dh{d: d}
+	q := hlppHeap{d: d}
 	inQ := make([]bool, n)
 	push := func(v, f int, e *neighbor) {
 		w := e.to
@@ -3689,7 +3827,7 @@ func (*graph) minCostFlowDijkstra(in io.Reader, n, m, st, end, flowLimit int) in
 			dist[i] = _inf
 		}
 		dist[st] = 0
-		q := vdHeap{{st, 0}}
+		q := dijkstraHeap{{st, 0}}
 		for len(q) > 0 {
 			p := q.pop()
 			v := p.v
@@ -3704,7 +3842,7 @@ func (*graph) minCostFlowDijkstra(in io.Reader, n, m, st, end, flowLimit int) in
 				if newD := dist[v] + int64(e.cost) + h[v] - h[w]; newD < dist[w] {
 					dist[w] = newD
 					fa[w] = pair{v, i}
-					q.push(vdPair{w, newD})
+					q.push(dijkstraPair{w, newD})
 				}
 			}
 		}
@@ -3836,7 +3974,7 @@ func (*graph) maximalCliques(g []int64, max func(int, int) int) int {
 	// 则转移时要么不取 lb（low bit），要么取 lb 并去掉不与 lb 相邻的点（包括 lb）
 	// 将这一过程记忆化可大幅减少运行时间，理由如下：
 	// 由于每次都会去掉 lb，所以至多 k=len(g)/2 次递归后会进入右半部分没有 1 的状态
-	// 将这 k 次递归过程视作一颗二叉树，则其耗时为 O(2^k)
+	// 将这 k 次递归过程视作一棵二叉树，则其耗时为 O(2^k)
 	// 之后记忆化占主导，耗时也为 O(2^k)
 	// 主要注意的是，k 次递归的结果是否记忆化并不重要，因为这部分最多也只有 O(2^k) 个状态
 	// 总的来说，记忆化将计算量由原来的「二叉树规模」变成了「meet in the middle 规模」

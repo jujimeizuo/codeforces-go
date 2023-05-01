@@ -1,6 +1,10 @@
 package copypasta
 
 /* 单调栈 Monotone Stack
+
+【图解单调栈】两种方法，两张图秒懂
+https://leetcode.cn/problems/next-greater-node-in-linked-list/solution/tu-jie-dan-diao-zhan-liang-chong-fang-fa-v9ab/
+
 举例：返回每个元素两侧严格大于它的元素位置（不存在则为 -1 或 n）
 如何理解：把数组想象成一列山峰，站在 a[i] 的山顶仰望两侧的山峰，是看不到高山背后的矮山的，只能看到一座座更高的山峰
          这就启发我们引入一个底大顶小的单调栈，入栈时不断比较栈顶元素直到找到一个比当前元素大的
@@ -12,14 +16,46 @@ package copypasta
 https://oi-wiki.org/ds/monotonous-stack/
 https://cp-algorithms.com/data_structures/stack_queue_modification.html
 
+#### 单调栈
+
+- [496. 下一个更大元素 I](https://leetcode.cn/problems/next-greater-element-i/)（单调栈模板题）
+- [503. 下一个更大元素 II](https://leetcode.cn/problems/next-greater-element-ii/)
+- [456. 132 模式](https://leetcode.cn/problems/132-pattern/)
+- [739. 每日温度](https://leetcode.cn/problems/daily-temperatures/)
+- [901. 股票价格跨度](https://leetcode.cn/problems/online-stock-span/)
+- [1019. 链表中的下一个更大节点](https://leetcode.cn/problems/next-greater-node-in-linked-list/)
+- [1124. 表现良好的最长时间段](https://leetcode.cn/problems/longest-well-performing-interval/)
+- [1475. 商品折扣后的最终价格](https://leetcode.cn/problems/final-prices-with-a-special-discount-in-a-shop/)
+- [2289. 使数组按非递减顺序排列](https://leetcode.cn/problems/steps-to-make-array-non-decreasing/)
+
+#### 矩形系列
+
+- [84. 柱状图中最大的矩形](https://leetcode.cn/problems/largest-rectangle-in-histogram/)
+- [85. 最大矩形](https://leetcode.cn/problems/maximal-rectangle/)
+- [1504. 统计全 1 子矩形](https://leetcode.cn/problems/count-submatrices-with-all-ones/)
+
+#### 字典序最小
+
+- [316. 去除重复字母](https://leetcode.cn/problems/remove-duplicate-letters/)
+- [316 扩展：重复个数不超过 limit](https://leetcode.cn/contest/tianchi2022/problems/ev2bru/)
+- [402. 移掉 K 位数字](https://leetcode.cn/problems/remove-k-digits/)
+- [321. 拼接最大数](https://leetcode.cn/problems/create-maximum-number/)
+
+#### 贡献法
+
+- [907. 子数组的最小值之和](https://leetcode.cn/problems/sum-of-subarray-minimums/)
+- [1856. 子数组最小乘积的最大值](https://leetcode.cn/problems/maximum-subarray-min-product/)
+- [2104. 子数组范围和](https://leetcode.cn/problems/sum-of-subarray-ranges/)
+- [2281. 巫师的总力量和](https://leetcode.cn/problems/sum-of-total-strength-of-wizards/)
+
 模板题
 https://www.luogu.com.cn/problem/P5788
 https://www.luogu.com.cn/problem/P2866 http://poj.org/problem?id=3250
-LC496 https://leetcode-cn.com/problems/next-greater-element-i/
-LC503 https://leetcode-cn.com/problems/next-greater-element-ii/
 
 NEERC05，UVa 1619 https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=825&page=show_problem&problem=4494
 转换 https://codeforces.com/problemset/problem/280/B
+转换 LC2289 https://leetcode.cn/problems/steps-to-make-array-non-decreasing/
+max >= sum https://codeforces.com/problemset/problem/1691/D
 LC1124 https://leetcode.cn/problems/longest-well-performing-interval/
 你从单调栈学到了什么思想？LC1944 https://leetcode.cn/problems/number-of-visible-people-in-a-queue/
 下下个最大元素 LC2454 https://leetcode.cn/problems/next-greater-element-iv/
@@ -47,7 +83,7 @@ LC2355 https://leetcode.cn/problems/maximum-number-of-books-you-can-take/
 
 其他
 LC42 接雨水 https://leetcode-cn.com/problems/trapping-rain-water/
-     评注：接雨水有三种不同的解法（DP、单调栈和双指针），其中双指针是 DP 的空间优化写法
+     评注：接雨水有三种不同的解法（DP、单调栈和双指针），其中双指针是 DP 的空间优化写法，讲解见 https://www.bilibili.com/video/BV1Qg411q7ia/
           本质上是两种计算策略：计算每个下标处的接水量（纵向累加），计算一段高度对应的接水宽度（横向累加）
 LC84 柱状图中最大的矩形 https://leetcode-cn.com/problems/largest-rectangle-in-histogram/ http://poj.org/problem?id=2559 http://poj.org/problem?id=2082
 LC85 最大全 1 矩形（实现见下面的 maximalRectangleArea）https://leetcode-cn.com/problems/maximal-rectangle/ 原题为 http://poj.org/problem?id=3494
@@ -66,6 +102,7 @@ func monotoneStack(a []int) ([]int, []int) {
 	// 求左侧严格小于 a[i] 的最近位置 left[i]，这样 a[i] 就是区间 [left[i]+1,i] 内最小的元素（之一）
 	// 如果改成小于等于，那么 a[i] 就是区间 [left[i]+1,i] 内独一无二的最小元素
 	// 不存在时 left[i] = -1
+	// 虽然写了个二重循环，但站在每个元素的视角看，这个元素在二重循环中最多入栈出栈各一次，因此整个二重循环的时间复杂度为 O(n)
 	n := len(a)
 	left := make([]int, n)
 	st := []int{-1} // 栈底哨兵
@@ -266,4 +303,64 @@ func numSubmat(mat [][]int) (ans int) {
 		}
 	}
 	return
+}
+
+// 字典序最小的无重复字符的子序列
+// LC316 https://leetcode.cn/problems/remove-duplicate-letters/
+// EXTRA: 重复个数不超过 limit https://leetcode.cn/contest/tianchi2022/problems/ev2bru/
+func removeDuplicateLetters(s string) string {
+	left := ['z' + 1]int{}
+	for _, c := range s {
+		left[c]++
+	}
+	inSt := ['z' + 1]bool{}
+	st := []rune{}
+	for _, c := range s {
+		left[c]--
+		if inSt[c] {
+			continue
+		}
+		for len(st) > 0 && c < st[len(st)-1] && left[st[len(st)-1]] > 0 {
+			top := st[len(st)-1]
+			st = st[:len(st)-1]
+			inSt[top] = false // top > c，且 top 后面还有，那么可以重新加进来
+		}
+		st = append(st, c)
+		inSt[c] = true
+	}
+	return string(st)
+}
+
+// 求 a 的最长的子数组，其元素和大于 lowerSum
+// 返回任意一个符合要求的子数组的左右端点（闭区间）
+// 如果不存在，返回 [-1,-1]
+// 讲解：https://leetcode.cn/problems/longest-well-performing-interval/solution/liang-chong-zuo-fa-liang-zhang-tu-miao-d-hysl/
+// LC962 https://leetcode.cn/problems/maximum-width-ramp/
+// LC1124 https://leetcode.cn/problems/longest-well-performing-interval/
+// 有点相关 http://codeforces.com/problemset/problem/1788/E
+func longestSubarrayWithLowerSum(a []int, lowerSum int) (int, int) {
+	n := len(a)
+	sum := make([]int, n+1)
+	st := []int{0}
+	for j, v := range a {
+		j++
+		sum[j] = sum[j-1] + v
+		if sum[j] < sum[st[len(st)-1]] {
+			st = append(st, j)
+		}
+	}
+
+	l, r := -1, 0
+	for i := n; i > 0; i-- {
+		for len(st) > 0 && sum[i]-sum[st[len(st)-1]] > lowerSum {
+			j := st[len(st)-1]
+			st = st[:len(st)-1]
+			if l < 0 || i-j < r-l {
+				l, r = j, i
+			}
+		}
+	}
+	r-- // 闭区间
+
+	return l, r
 }

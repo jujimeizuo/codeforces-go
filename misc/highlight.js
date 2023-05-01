@@ -48,7 +48,7 @@
         "equally", "equal", "same", "duplicate", "different", "unique", "distinct", "strictly", "overlapping", "overlap",
         "Only", "only", "just", "Exactly", "exactly", "always", "indeed", "precisely",
         "pairwise", "adjacent", "neighbour", "in a row", "consecutive", "continuous", "contiguous", "one after another", "disjoint", "as possible",
-        "more than", "less than",
+        "more than", "less than", "greater than",
         "except",
         // "must",
 
@@ -79,7 +79,7 @@
 
         "没有", "不是", "不同", "不会", "互不",
         "相同",
-        "独一无二", "唯一", "两个",
+        "独一无二", "唯一", "只有", "两个",
         "所有", "每", "任何", "任意", "或", "之一", "反之", "必须", "仅", "其他",
         "最小", "最大", "最少", "最多", "最短", "最长", "最早", "最晚", "最后", "第一", // todo regex 最...
         "至少", "至多", "恰好", "刚好",
@@ -92,7 +92,8 @@
         "单向", "双向",
         "本身",
         "独立",
-        // "返回", "计算",
+        "返回",
+        // "计算",
     ];
 
     const tags = ['p', 'li'];

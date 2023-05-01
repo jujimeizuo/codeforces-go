@@ -71,6 +71,10 @@ func _(min, max func(int, int) int) {
 		_ = subHash
 	}
 
+	// todo 二维字符串哈希
+	// https://www.luogu.com.cn/problem/solution/UVA11019
+	// UVa 11019 https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=22&page=show_problem&problem=1960
+
 	// KMP (Knuth–Morris–Pratt algorithm)
 	// match[i] 为 s[:i+1] 的真前缀和真后缀的最长的匹配长度
 	// 特别地，match[n-1] 为 s 的真前缀和真后缀的最长的匹配长度
@@ -80,7 +84,9 @@ func _(min, max func(int, int) int) {
 	// TODO https://oi-wiki.org/string/z-func/
 	// https://cp-algorithms.com/string/prefix-function.html
 	// https://algs4.cs.princeton.edu/code/edu/princeton/cs/algs4/KMP.java.html
+	//
 	// 模板题 https://loj.ac/p/103 https://www.luogu.com.cn/problem/P3375
+	//       LC28 https://leetcode.cn/problems/find-the-index-of-the-first-occurrence-in-a-string/
 	//       LC1392 https://leetcode-cn.com/problems/longest-happy-prefix/
 	// 最长回文前缀 LC214 https://leetcode.cn/problems/shortest-palindrome/
 	// LC1316 https://leetcode.cn/problems/distinct-echo-substrings/
@@ -169,6 +175,8 @@ func _(min, max func(int, int) int) {
 	//		构造 t+s
 	// 最短的包含 s 和 t 的字符串 https://codeforces.com/edu/course/2/lesson/3/4/practice/contest/272262/problem/F
 	// 		构造 s+t 和 t+s
+	// 判断一个字符串 t 是否为 prefix+reverse(s)+suffix，其中 prefix+suffix=s https://atcoder.jp/contests/abc284/tasks/abc284_f
+	//      构造 t+reverse(t) 和 reverse(t)+t
 	calcZ := func(s string) []int {
 		n := len(s)
 		z := make([]int, n)
@@ -208,12 +216,13 @@ func _(min, max func(int, int) int) {
 		i := 0
 		for j := 1; j < n; {
 			k := 0
-			for ; k < n && s[i+k] == s[j+k]; k++ {
+			for k < n && s[i+k] == s[j+k] {
+				k++
 			}
 			if k >= n {
 				break
 			}
-			if s[i+k] < s[j+k] { // > 为字典序最大
+			if s[i+k] < s[j+k] { // 改成 > 则返回字典序最大的
 				// j 到 j+k 都不会是最小串的开头位置
 				j += k + 1
 			} else {
@@ -262,7 +271,7 @@ func _(min, max func(int, int) int) {
 	}
 
 	// 最长回文子串 Manacher（马拉车算法）
-	// 【推荐】https://www.bilibili.com/video/BV1AX4y1F79W
+	// https://www.bilibili.com/video/BV1AX4y1F79W
 	// https://www.bilibili.com/video/BV1ft4y117a4
 	// https://oi-wiki.org/string/manacher/
 	// https://cp-algorithms.com/string/manacher.html
@@ -315,7 +324,8 @@ func _(min, max func(int, int) int) {
 			// 算法的复杂度取决于这部分执行的次数
 			// 由于扩展之后 r 必然会更新（右移），且扩展的的次数就是 r 右移的次数
 			// 因此算法的复杂度和 t 的长度成正比
-			for ; t[i-hl] == t[i+hl]; hl++ {
+			for t[i-hl] == t[i+hl] {
+				hl++
 			}
 			if i+hl > r {
 				mid, r = i, i+hl
@@ -536,6 +546,8 @@ func _(min, max func(int, int) int) {
 			if ri > rj {
 				ri, rj = rj, ri
 			}
+			// ri+1 是因为 height 的定义是 sa[i] 和 sa[i-1]
+			// rj+1 是因为 _q 是左闭右开
 			return _q(ri+1, rj+1)
 		}
 
@@ -558,7 +570,7 @@ func _(min, max func(int, int) int) {
 
 		// EXTRA: 比较两个子串，返回 strings.Compare(s[l1:r1], s[l2:r2])，注意这里是左闭右开区间
 		// https://codeforces.com/problemset/problem/611/D
-		// https://leetcode-cn.com/contest/biweekly-contest-59/problems/number-of-ways-to-separate-numbers/
+		// LC1977 https://leetcode-cn.com/problems/number-of-ways-to-separate-numbers/
 		compareSub := func(l1, r1, l2, r2 int) int {
 			len1, len2 := r1-l1, r2-l2
 			l := lcp(l1, l2)
@@ -578,7 +590,7 @@ func _(min, max func(int, int) int) {
 		}
 
 		// EXTRA: 可重叠最长重复子串
-		// https://leetcode-cn.com/problems/longest-duplicate-substring/ https://leetcode-cn.com/problems/longest-repeating-substring/
+		// LC1044 https://leetcode-cn.com/problems/longest-duplicate-substring/
 		longestDupSubstring := func() string {
 			maxP, maxH := 0, 0
 			for i, h := range height {
@@ -690,7 +702,6 @@ func _(min, max func(int, int) int) {
 			}
 			return ri < rj
 		}
-		tmp := make([]int, n+1)
 		for i := 0; i <= n; i++ {
 			sa[i] = i
 			rank[i] = -1
@@ -700,6 +711,7 @@ func _(min, max func(int, int) int) {
 		}
 		for k = 1; k <= n; k *= 2 {
 			sort.Slice(sa, func(i, j int) bool { return compareSA(sa[i], sa[j]) })
+			tmp := make([]int, n+1)
 			tmp[sa[0]] = 0
 			for i := 1; i <= n; i++ {
 				tmp[sa[i]] = tmp[sa[i-1]]
@@ -707,7 +719,7 @@ func _(min, max func(int, int) int) {
 					tmp[sa[i]]++
 				}
 			}
-			copy(rank, tmp)
+			rank = tmp
 		}
 		sa = sa[1:]
 		return sa
