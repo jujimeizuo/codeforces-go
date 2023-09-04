@@ -259,7 +259,7 @@ func miscCollection() {
 	}
 
 	// 01 矩阵，每个 1 位置向四个方向延伸连续 1 的最远距离
-	// https://codingcompetitions.withgoogle.com/kickstart/round/0000000000436140/000000000068c509
+	// Kick Start 2021 Round A L Shaped Plots https://codingcompetitions.withgoogle.com/kickstart/round/0000000000436140/000000000068c509
 	max1dir4 := func(a [][]int) (ls, rs, us, ds [][]int) {
 		n, m := len(a), len(a[0])
 		ls, rs = make([][]int, n), make([][]int, n)
@@ -543,12 +543,19 @@ func toNegabinary(n int) (res string) {
 
 // 分数转小数
 // https://en.wikipedia.org/wiki/Repeating_decimal
+// Number of digits in decimal expansion of 1/n before the periodic part begins https://oeis.org/A051628
+// - 设 n=2^c2*5^c5*...，那么 A051628(n) = max(c2,c5)
 // Period of decimal representation of 1/n, or 0 if 1/n terminates https://oeis.org/A051626
+// - 如果 n 的质因子只有 2 和 5，那么不存在循环节
+// - 否则，先把 n 移除所有质因子 2 和 5，得到 m，那么 A051626(n) = n_order(10, m) 请看 math.go 中的「阶」
+// - 参考 https://zhuanlan.zhihu.com/p/346536813 https://www.zhihu.com/question/462266812
 // The periodic part of the decimal expansion of 1/n https://oeis.org/A036275
 // 例如 (2, -3) => ("-0.", "6")
 // b must not be zero
 // LC166 https://leetcode-cn.com/problems/fraction-to-recurring-decimal/
 // WF1990 https://www.luogu.com.cn/problem/UVA202
+// 1e12 加强版 https://ac.nowcoder.com/acm/contest/62622/E
+// Python 代码 https://ac.nowcoder.com/acm/contest/view-submission?submissionId=63288994
 func fractionToDecimal(a, b int64) (beforeCycle, cycle []byte) {
 	if a == 0 {
 		return []byte{'0'}, nil
@@ -879,12 +886,14 @@ func parseTime(s string) (hour, minute, total int) {
 	return
 }
 
-// 合并 a 中所有重叠的区间（哪怕只有一个端点重叠，也算重叠）
+// 合并 a 中所有重叠的闭区间（哪怕只有一个端点重叠，也算重叠）
 // 注：这种做法在变形题中容易写错，更加稳定的做法是差分数组
 // - [56. 合并区间](https://leetcode.cn/problems/merge-intervals/)
 // - [55. 跳跃游戏](https://leetcode.cn/problems/jump-game/)
 // - [2580. 统计将重叠区间合并成组的方案数](https://leetcode.cn/problems/count-ways-to-group-overlapping-ranges/)
 // - [2584. 分割数组使乘积互质](https://leetcode.cn/problems/split-the-array-to-make-coprime-products/)
+// https://codeforces.com/problemset/problem/1626/C
+// 倒序合并代码 https://codeforces.com/contest/1626/submission/211306494
 func mergeIntervals(a [][]int, max func(int, int) int) (ans [][]int) {
 	sort.Slice(a, func(i, j int) bool { return a[i][0] < a[j][0] }) // 按区间左端点排序
 	l0, maxR := a[0][0], a[0][1]
@@ -922,6 +931,27 @@ func minJumpNumbers(a []int, max func(int, int) int) (ans int) {
 			}
 			curR = nxtR // 建造下一座桥
 			ans++
+		}
+	}
+	return
+}
+
+// 摩尔投票法求绝对众数（absolute mode, majority）
+// Boyer–Moore majority vote algorithm
+// https://en.wikipedia.org/wiki/Boyer%E2%80%93Moore_majority_vote_algorithm
+// LC169 https://leetcode.cn/problems/majority-element/
+// LC229 变形 https://leetcode.cn/problems/majority-element-ii/
+// LC2780 https://leetcode.cn/problems/minimum-index-of-a-valid-split/
+func majorityVote(a []int) (mode int) {
+	cnt := 0
+	for _, v := range a {
+		if cnt == 0 {
+			mode = v
+		}
+		if v == mode {
+			cnt++
+		} else {
+			cnt--
 		}
 	}
 	return

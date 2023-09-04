@@ -60,9 +60,10 @@ https://codeforces.com/problemset/problem/954/F
 任意子集（不需要剪枝的话可以直接位运算枚举）
 部分子集
 排列（递归+跳过已经枚举的值）
-
+https://leetcode.cn/tag/backtracking/problemset/
 https://www.luogu.com.cn/problem/P1379
 https://codeforces.com/problemset/problem/429/C
+爆搜 https://atcoder.jp/contests/abc233/tasks/abc233_c
 */
 func searchCollection() {
 	// 指数型，即 n 层循环
@@ -474,12 +475,14 @@ func searchCollection() {
 	}
 
 	// 康托展开 Cantor Expansion
-	// 返回所给排列 perm（元素在 [1,n]）的字典序名次
+	// 返回所给排列 perm（元素在 [1,n]）的字典序名次（可以从 0 或从 1 开始，具体看代码末尾）
 	// 核心思想：对于第 i 个位置，若该位置的数是未出现在其左侧的数中第 k 大的，那么有 (k−1)×(N−i)! 种方案在该位置上比这个排列小
+	// 结合康托展开和逆康托展开，可以求出一个排列的下 k 个排列
 	// https://zh.wikipedia.org/wiki/%E5%BA%B7%E6%89%98%E5%B1%95%E5%BC%80
 	// https://oi-wiki.org/math/cantor/
 	// https://www.luogu.com.cn/problem/P5367
 	// 有重复元素 LC1830 https://leetcode-cn.com/problems/minimum-number-of-operations-to-make-string-sorted/
+	// https://codeforces.com/problemset/problem/1443/E
 	rankPermutation := func(perm []int) int64 {
 		const mod int64 = 1e9 + 7
 		n := len(perm)
@@ -518,6 +521,7 @@ func searchCollection() {
 	// 逆康托展开 Inverse Cantor Expansion
 	// 返回字典序第 k 小的排列，元素范围为 [1,n]
 	// LC60 https://leetcode-cn.com/problems/permutation-sequence/
+	// https://codeforces.com/problemset/problem/1443/E
 	kthPermutation := func(n, k int) []int {
 		F := make([]int, n)
 		F[0] = 1
@@ -525,7 +529,7 @@ func searchCollection() {
 			F[i] = F[i-1] * i
 		}
 
-		k--
+		k-- // 如果输入是从 1 开始的，改成从 0 开始
 		perm := make([]int, n)
 		valid := make([]int, n+1)
 		for i := 1; i <= n; i++ {
@@ -533,7 +537,7 @@ func searchCollection() {
 		}
 		for i := 1; i <= n; i++ {
 			order := k/F[n-i] + 1
-			for j := 1; j <= n; j++ {
+			for j := 1; j <= n; j++ { // 从 1 开始的排列    TODO 用线段树优化
 				order -= valid[j]
 				if order == 0 {
 					perm = append(perm, j)
@@ -559,6 +563,7 @@ func searchCollection() {
 	// https://www.luogu.com.cn/problem/P4799
 	// https://codeforces.com/problemset/problem/327/E
 	// https://atcoder.jp/contests/abc184/tasks/abc184_f
+	// NEERC 2003 https://codeforces.com/gym/101388 J
 
 	// 折半枚举 - 超大背包问题
 	// https://atcoder.jp/contests/abc184/tasks/abc184_f
@@ -783,7 +788,7 @@ func _(min, max func(int, int) int) {
 	// 我的视频讲解 https://www.bilibili.com/video/BV1na41137jv?t=15m43s
 	// https://en.wikipedia.org/wiki/Combinatorial_number_system#Applications
 	// 比如在 n 个数中求满足某种性质的最大子集，则可以从 n 开始倒着枚举子集大小，直到找到一个符合性质的子集
-	// 例题（TS1）https://codingcompetitions.withgoogle.com/codejam/round/0000000000007706/0000000000045875
+	// 例题（TS1）GCJ 2018 R2 Costume Change https://codingcompetitions.withgoogle.com/codejam/round/0000000000007706/0000000000045875
 	loopSubsetK := func(a []int, k int) {
 		n := len(a)
 		for sub := 1<<k - 1; sub < 1<<n; {
@@ -954,11 +959,12 @@ func _(min, max func(int, int) int) {
 
 	// 第一排在右上，最后一排在左下
 	// 每排从左上到右下
+	// LC2711 https://leetcode.cn/problems/difference-of-number-of-distinct-values-on-diagonals/
 	loopDiagonal := func(n, m int) {
 		for s := 1; s < n+m; s++ {
-			l := max(0, m-s)
-			r := min(m-1, m-s+n-1)
-			for j := l; j <= r; j++ {
+			minJ := max(0, m-s)
+			maxJ := min(m-1, n+m-1-s)
+			for j := minJ; j <= maxJ; j++ {
 				i := s + j - m
 				_ = i
 
@@ -971,9 +977,9 @@ func _(min, max func(int, int) int) {
 	// LC498 https://leetcode.cn/problems/diagonal-traverse/
 	loopAntiDiagonal := func(n, m int) {
 		for s := 0; s < n+m-1; s++ {
-			l := max(0, s-n+1)
-			r := min(m-1, s)
-			for j := l; j <= r; j++ {
+			minJ := max(0, s-n+1)
+			maxJ := min(m-1, s)
+			for j := minJ; j <= maxJ; j++ {
 				i := s - j
 				_ = i
 
@@ -1038,18 +1044,59 @@ func _(min, max func(int, int) int) {
 	}
 }
 
-//
+/*
+## 题单
+
+#### 网格图 DFS
+
+- [200. 岛屿数量](https://leetcode.cn/problems/number-of-islands/)
+- [1254. 统计封闭岛屿的数目](https://leetcode.cn/problems/number-of-closed-islands/)
+- [1020. 飞地的数量](https://leetcode.cn/problems/number-of-enclaves/)
+- [695. 岛屿的最大面积](https://leetcode.cn/problems/max-area-of-island/)
+- [面试题 16.19. 水域大小](https://leetcode.cn/problems/pond-sizes-lcci/)
+- [463. 岛屿的周长](https://leetcode.cn/problems/island-perimeter/)
+- [130. 被围绕的区域](https://leetcode.cn/problems/surrounded-regions/)
+- [417. 太平洋大西洋水流问题](https://leetcode.cn/problems/pacific-atlantic-water-flow/)
+- [529. 扫雷游戏](https://leetcode.cn/problems/minesweeper/)
+- [827. 最大人工岛](https://leetcode.cn/problems/making-a-large-island/)
+- [1034. 边界着色](https://leetcode.cn/problems/coloring-a-border/)
+
+#### 网格图 BFS
+
+- [542. 01 矩阵](https://leetcode.cn/problems/01-matrix/)
+- [934. 最短的桥](https://leetcode.cn/problems/shortest-bridge/)
+- [994. 腐烂的橘子](https://leetcode.cn/problems/rotting-oranges/)
+- [1162. 地图分析](https://leetcode.cn/problems/as-far-from-land-as-possible/)
+- [2146. 价格范围内最高排名的 K 样物品](https://leetcode.cn/problems/k-highest-ranked-items-within-a-price-range/)
+- [2258. 逃离火灾](https://leetcode.cn/problems/escape-the-spreading-fire/)
+- [2577. 在网格图中访问一个格子的最少时间](https://leetcode.cn/problems/minimum-time-to-visit-a-cell-in-a-grid/)
+- [2684. 矩阵中移动的最大次数](https://leetcode.cn/problems/maximum-number-of-moves-in-a-grid/)
+https://atcoder.jp/contests/abc317/tasks/abc317_e
+
+#### 综合应用
+
+- [778. 水位上升的泳池中游泳](https://leetcode.cn/problems/swim-in-rising-water/)
+- [1631. 最小体力消耗路径](https://leetcode.cn/problems/path-with-minimum-effort/)
+- [1263. 推箱子](https://leetcode.cn/problems/minimum-moves-to-move-a-box-to-their-target-location/)
+- [LCP 75. 传送卷轴](https://leetcode.cn/problems/rdmXM7/)
+- [LCP 13. 寻宝](https://leetcode.cn/problems/xun-bao/)
+*/
 
 // 网格/矩阵上的搜索
 // NOTE: 对于 n*m 的网格图，BFS 最多只占用 O(min(n,m)) 的空间，而 DFS 最多会占用 O(nm) 的空间
 // 易错题 https://codeforces.com/problemset/problem/540/C
 // 思维转换 LCP31 https://leetcode-cn.com/problems/Db3wC1/
-// BFS:
 // LC778 https://leetcode.cn/problems/swim-in-rising-water/
 // LC1631 https://leetcode.cn/problems/path-with-minimum-effort/
+// BFS:
+// LC542 https://leetcode.cn/problems/01-matrix/
+// LC994 https://leetcode.cn/problems/rotting-oranges/
+// LC1162 https://leetcode.cn/problems/as-far-from-land-as-possible/
 // LC2146 https://leetcode.cn/problems/k-highest-ranked-items-within-a-price-range/
+// LC2258 https://leetcode.cn/problems/escape-the-spreading-fire/
 // LC2577 https://leetcode.cn/problems/minimum-time-to-visit-a-cell-in-a-grid/
-// https://leetcode-cn.com/contest/season/2020-spring/problems/xun-bao/
+// LCP13 https://leetcode.cn/problems/xun-bao/
+// LCP75 https://leetcode.cn/problems/rdmXM7/
 func gridCollection() {
 	type pair struct{ x, y int }
 	dir4 := []pair{{-1, 0}, {1, 0}, {0, -1}, {0, 1}} // 上下左右
@@ -1183,10 +1230,11 @@ func gridCollection() {
 		}
 		for i, row := range g {
 			for j, v := range row {
-				if v == valid && !vis[i][j] {
-					cnt++
-					f(i, j)
+				if v != valid && !vis[i][j] {
+					continue
 				}
+				cnt++
+				f(i, j)
 			}
 		}
 		return
@@ -1223,12 +1271,13 @@ func gridCollection() {
 		}
 		for i, row := range g {
 			for j, v := range row {
-				if v == validCell && !vis[i][j] {
-					comp = []pair{}
-					if f(i, j) {
-						comps = append(comps, comp)
-						// do comp ...
-					}
+				if v != validCell && !vis[i][j] {
+					continue
+				}
+				comp = []pair{}
+				if f(i, j) {
+					comps = append(comps, comp)
+					// do comp ...
 				}
 			}
 		}

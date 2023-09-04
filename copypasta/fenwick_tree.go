@@ -4,6 +4,7 @@ import "sort"
 
 /* 树状数组（Fenwick Tree），二叉索引树（Binary Index Tree, BIT）
 https://en.wikipedia.org/wiki/Fenwick_tree
+原论文 https://doi.org/10.1002/spe.4380240306
 树状数组 tree 的基本用途是维护序列 a 的前缀和（tree 和 a 的下标都从 1 开始）
 tree[i] = a[i-lowbit(i)+1] + ... + a[i]
 看图 https://oi-wiki.org/ds/fenwick/
@@ -37,18 +38,110 @@ https://algs4.cs.princeton.edu/code/edu/princeton/cs/algs4/FenwickTree.java.html
 多变量统计 https://codeforces.com/problemset/problem/1194/E
          T4 https://www.nowcoder.com/discuss/1022136
 三元逆序对 https://codeforces.com/problemset/problem/61/E
+最多交换 k 次相邻字母后，得到的最小字典序
+- LC1505 https://leetcode.cn/problems/minimum-possible-integer-after-at-most-k-adjacent-swaps-on-digits/
 整除对统计 https://codeforces.com/problemset/problem/301/D
 区间统计技巧 https://codeforces.com/problemset/problem/369/E
 区间包含计数 https://codeforces.com/problemset/problem/652/D
 区间元素去重后的异或和 https://codeforces.com/problemset/problem/703/D 联系 https://www.luogu.com.cn/problem/P1972
 建模 https://codeforces.com/problemset/problem/1660/F2
 长为 k 的上升子序列个数 https://codeforces.com/problemset/problem/597/C
+多重前缀和 https://atcoder.jp/contests/abc256/tasks/abc256_f
 todo https://codeforces.com/problemset/problem/961/E（不止一种做法）
  https://codeforces.com/gym/101649 I 题
  http://poj.org/problem?id=2155
  http://poj.org/problem?id=2886
 */
-func fenwickTree(n int) {
+
+type fenwick struct {
+	tree []int64
+}
+
+func newFenwickTree(n int) fenwick {
+	return fenwick{make([]int64, n+1)}
+}
+
+// a[i] 增加 val
+// 1<=i<=n
+func (f fenwick) add(i int, val int64) {
+	for ; i < len(f.tree); i += i & -i {
+		f.tree[i] += val
+	}
+}
+
+// 求前缀和 a[1] + ... + a[i]
+// 1<=i<=n
+func (f fenwick) pre(i int) (res int64) {
+	for ; i > 0; i &= i - 1 {
+		res += f.tree[i]
+	}
+	return
+}
+
+// 求区间和 a[l] + ... + a[r]
+// 1<=l<=r<=n
+func (f fenwick) query(l, r int) int64 {
+	return f.pre(r) - f.pre(l-1)
+}
+
+//
+
+// 差分版本
+// 参考《算法竞赛进阶指南》《挑战程序设计竞赛》
+// 利用差分数组，实现 O(log n) 的区间加、区间查询
+// a[1] = diff[1]
+// a[2] = diff[1] + diff[2]
+// a[m] = diff[1] + ... + diff[m]
+// 所以 a[1] + ... + a[m]
+//   = ∑(m-i+1)*diff[i]
+//   = (m+1)∑diff[i] - ∑i*diff[i]
+// https://ac.nowcoder.com/acm/problem/50454
+// todo 二维差分 上帝造题的七分钟 https://www.luogu.com.cn/problem/P4514
+// todo 离线询问（按 x y 分组）https://codeforces.com/contest/1824/problem/D
+
+// [0] 维护 ∑diff[i]
+// [1] 维护 ∑i*diff[i]
+// 为了更好地利用缓存，写成 [][2] 而不是 [2][]
+type fenwickDiff [][2]int64
+
+func newFenwickTreeDiff(n int) fenwickDiff {
+	return make([][2]int64, n+1)
+}
+
+func (t fenwickDiff) _add(i int, val int64) {
+	for iv := int64(i) * val; i < len(t); i += i & -i {
+		t[i][0] += val
+		t[i][1] += iv
+	}
+}
+
+// a[l] 到 a[r] 增加 val
+// 1<=l<=r<=n
+func (t fenwickDiff) add(l, r int, val int64) {
+	t._add(l, val)
+	t._add(r+1, -val)
+}
+
+// 求前缀和 a[1] + ... + a[i]
+// 1<=i<=n
+func (t fenwickDiff) pre(i0 int) int64 {
+	var s0, s1 int64
+	for i := i0; i > 0; i &= i - 1 {
+		s0 += t[i][0]
+		s1 += t[i][1]
+	}
+	return int64(i0+1)*s0 - s1
+}
+
+// 求区间和 a[l] + ... + a[r]
+// 1<=l<=r<=n
+func (t fenwickDiff) query(l, r int) int64 {
+	return t.pre(r) - t.pre(l-1)
+}
+
+//
+
+func _(n int) {
 	tree := make([]int, n+1) // int64
 	add := func(i int, val int) {
 		for ; i < len(tree); i += i & -i {
@@ -129,6 +222,33 @@ func fenwickTree(n int) {
 			s -= tree[l]
 		}
 		return
+	}
+
+	{
+		// 时间戳优化（通常用于多组数据+值域树状数组）https://oi-wiki.org/ds/fenwick/#%E6%97%B6%E9%97%B4%E6%88%B3%E4%BC%98%E5%8C%96
+		// https://codeforces.com/problemset/submission/1801/205042964
+		const mx int = 1e6
+		tree := [mx + 1]int{} // 默认都是 0
+		time := [mx + 1]int{}
+		curCase := 1 // 从 1 开始
+		upd := func(i int, v int) {
+			for ; i <= mx; i += i & -i {
+				if time[i] != curCase {
+					time[i] = curCase
+					tree[i] = 0 // reset
+				}
+				tree[i] += v
+			}
+		}
+		pre := func(i int) (res int) {
+			for ; i > 0; i &= i - 1 {
+				if time[i] == curCase {
+					res += tree[i]
+				} // 否则，相当于 res += 0
+			}
+			return
+		}
+		_, _ = upd, pre
 	}
 
 	// 求逆序对的方法之一
@@ -254,36 +374,4 @@ func rangeMex(a []int, qs []struct{ l, r, i int }, min func(int, int) int) []int
 		update(a[i], prevPos[i])
 	}
 	return ans
-}
-
-// 结构体写法
-type fenwick struct {
-	tree []int64
-}
-
-func newFenwickTree(n int) fenwick {
-	return fenwick{make([]int64, n+1)}
-}
-
-// 位置 i 增加 val
-// 1<=i<=n
-func (f fenwick) add(i int, val int64) {
-	for ; i < len(f.tree); i += i & -i {
-		f.tree[i] += val
-	}
-}
-
-// 求前缀和 [0,i]
-// 0<=i<=n
-func (f fenwick) sum(i int) (res int64) {
-	for ; i > 0; i &= i - 1 {
-		res += f.tree[i]
-	}
-	return
-}
-
-// 求区间和 [l,r]
-// 1<=l<=r<=n
-func (f fenwick) query(l, r int) int64 {
-	return f.sum(r) - f.sum(l-1)
 }

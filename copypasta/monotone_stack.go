@@ -20,6 +20,7 @@ https://cp-algorithms.com/data_structures/stack_queue_modification.html
 
 - [496. 下一个更大元素 I](https://leetcode.cn/problems/next-greater-element-i/)（单调栈模板题）
 - [503. 下一个更大元素 II](https://leetcode.cn/problems/next-greater-element-ii/)
+- [2454. 下一个更大元素 IV](https://leetcode.cn/problems/next-greater-element-iv/)
 - [456. 132 模式](https://leetcode.cn/problems/132-pattern/)
 - [739. 每日温度](https://leetcode.cn/problems/daily-temperatures/)
 - [901. 股票价格跨度](https://leetcode.cn/problems/online-stock-span/)
@@ -47,6 +48,7 @@ https://cp-algorithms.com/data_structures/stack_queue_modification.html
 - [1856. 子数组最小乘积的最大值](https://leetcode.cn/problems/maximum-subarray-min-product/)
 - [2104. 子数组范围和](https://leetcode.cn/problems/sum-of-subarray-ranges/)
 - [2281. 巫师的总力量和](https://leetcode.cn/problems/sum-of-total-strength-of-wizards/)
+- [2818. 操作使得分最大](https://leetcode.cn/problems/apply-operations-to-maximize-score/)
 
 模板题
 https://www.luogu.com.cn/problem/P5788
@@ -79,6 +81,7 @@ https://codeforces.com/problemset/problem/5/E
 https://codeforces.com/problemset/problem/1313/C2
 https://codeforces.com/problemset/problem/1407/D
 结合线段树，或者巧妙地在单调栈中去维护最值 https://codeforces.com/problemset/problem/1483/C
+按照最大值分类讨论 LC1335 https://leetcode.cn/problems/minimum-difficulty-of-a-job-schedule/
 LC2355 https://leetcode.cn/problems/maximum-number-of-books-you-can-take/
 
 其他
@@ -89,6 +92,8 @@ LC84 柱状图中最大的矩形 https://leetcode-cn.com/problems/largest-rectan
 LC85 最大全 1 矩形（实现见下面的 maximalRectangleArea）https://leetcode-cn.com/problems/maximal-rectangle/ 原题为 http://poj.org/problem?id=3494
 LC1504 全 1 矩形个数（实现见下面的 numSubmat）https://leetcode-cn.com/problems/count-submatrices-with-all-ones/
 LC768 https://leetcode.cn/problems/max-chunks-to-make-sorted-ii/
+LC2735 https://leetcode.cn/problems/collecting-chocolates/solutions/2305119/xian-xing-zuo-fa-by-heltion-ypdx/
+LC2736 https://leetcode.cn/problems/maximum-sum-queries/
 后缀数组+不同矩形对应方案数之和 https://codeforces.com/edu/course/2/lesson/2/5/practice/contest/269656/problem/D
 与 bitOpTrickCnt 结合（见 bits.go）https://codeforces.com/problemset/problem/875/D
 已知部分 right 还原全部 right；已知 right 还原 a https://codeforces.com/problemset/problem/1158/C
@@ -100,28 +105,33 @@ func monotoneStack(a []int) ([]int, []int) {
 	// 如果有相同元素，需要把某一侧循环内的符号改成小于等于
 
 	// 求左侧严格小于 a[i] 的最近位置 left[i]，这样 a[i] 就是区间 [left[i]+1,i] 内最小的元素（之一）
-	// 如果改成小于等于，那么 a[i] 就是区间 [left[i]+1,i] 内独一无二的最小元素
+	// 如果改成求左侧小于等于，那么 a[i] 就是区间 [left[i]+1,i] 内独一无二的最小元素
 	// 不存在时 left[i] = -1
 	// 虽然写了个二重循环，但站在每个元素的视角看，这个元素在二重循环中最多入栈出栈各一次，因此整个二重循环的时间复杂度为 O(n)
 	n := len(a)
 	left := make([]int, n)
-	st := []int{-1} // 栈底哨兵
+	st := []int{-1} // 栈底哨兵，在栈为空时可以直接把 left[i] 赋值为 -1
 	for i, v := range a {
-		for len(st) > 1 && a[st[len(st)-1]] >= v { // 不断弹出 >= v 的，循环结束后栈顶就是 < v 的
+		// 求左侧 <  v : >=
+		// 求左侧 <= v : >
+		// 求左侧 >  v : <=
+		// 求左侧 >= v : <
+		for len(st) > 1 && a[st[len(st)-1]] >= v { // 这里的符号和要求的是反过来的
 			st = st[:len(st)-1]
 		}
+		// 不断弹出 >= v 的，那么循环结束后栈顶就是 < v 的
 		left[i] = st[len(st)-1]
 		st = append(st, i)
 	}
 
 	// 求右侧严格小于 a[i] 的最近位置 right[i]，这样 a[i] 就是区间 [i,right[i]-1] 内最小的元素（之一）
-	// 如果改成小于等于，那么 a[i] 就是区间 [i,right[i]-1] 内独一无二的最小元素
+	// 如果改成求右侧小于等于，那么 a[i] 就是区间 [i,right[i]-1] 内独一无二的最小元素
 	// 不存在时 right[i] = n
 	right := make([]int, n)
 	st = []int{n}
 	for i := n - 1; i >= 0; i-- {
 		v := a[i]
-		for len(st) > 1 && a[st[len(st)-1]] >= v {
+		for len(st) > 1 && a[st[len(st)-1]] >= v { // 同上
 			st = st[:len(st)-1]
 		}
 		right[i] = st[len(st)-1]
@@ -134,13 +144,12 @@ func monotoneStack(a []int) ([]int, []int) {
 	}
 
 	// EXTRA：计算贡献（注意取模时避免出现负数）
-	ans := 0
 	for i, v := range a {
-		l, r := left[i]+1, right[i] // [l,r) 左闭右开
-		// ...
-
-		tot := (sum[r] + mod - sum[l]) % mod
-		ans = (ans + v*tot) % mod
+		_ = v
+		//l, r := left[i]+1, right[i] // [l,r) 左闭右开
+		tot := (i - left[i]) * (right[i] - i)
+		_ = tot
+		//tot := (sum[r] + mod - sum[l]) % mod
 	}
 
 	{
@@ -187,29 +196,37 @@ func monotoneStack(a []int) ([]int, []int) {
 
 // 注：若输入的是一个 1~n 的排列，求两侧大于/小于位置有更简单的写法
 // 用双向链表思考（代码实现时用的数组）：
-// - 把 p 转换成双向链表，按元素值**从小到大**遍历 p[i]，那么 p[i] 左右两侧的就是大于 p[i] 的元素
-// - 算完 p[i] 后把 p[i] 从链表中删掉
-// 为简单起见，求出的下标从 1 开始（不存在时表示为 0 或 n+1）
+// - 把 perm 转换成双向链表，按元素值**从小到大**遍历 perm[i]，那么 perm[i] 左右两侧的就是大于 perm[i] 的元素
+// - 算完 perm[i] 后把 perm[i] 从链表中删掉
+// 为避免判断下标越界，传入的 perm 虽然下标是从 0 开始的，但视作从 1 开始（不存在时表示为 0 或 n+1）
 // https://codeforces.com/contest/1156/problem/E
 // https://atcoder.jp/contests/abc140/tasks/abc140_e
-func permLR(p []int) ([]int, []int) {
-	n := len(p)
-	idx := make([]int, n+1)
+func permLR(perm []int) ([]int, []int) {
+	n := len(perm)
+	pos := make([]int, n+1)
 	left := make([]int, n+2)
 	right := make([]int, n+1)
 	for i := 1; i <= n; i++ {
-		idx[p[i-1]] = i
+		pos[perm[i-1]] = i
 		left[i], right[i] = i-1, i+1
 	}
+	right[0] = 1
+	left[n+1] = n // 哨兵（本题不需要这两行，但是某些题目需要，比如 https://codeforces.com/problemset/problem/1154/E）
+	del := func(i int) {
+		l, r := left[i], right[i]
+		right[l] = r
+		left[r] = l
+	}
+
 	// 正序遍历求出的是两侧大于位置
 	// 倒序遍历求出的是两侧小于位置
 	for v := 1; v <= n; v++ {
-		i := idx[v]
+		i := pos[v]
 		l, r := left[i], right[i]
 		// do ...
+		_, _ = l, r
 
-		right[l] = r
-		left[r] = l // 删除 v
+		del(i) // 从链表中删除 v
 	}
 	return left, right
 }
@@ -305,16 +322,17 @@ func numSubmat(mat [][]int) (ans int) {
 	return
 }
 
-// 字典序最小的无重复字符的子序列
+// 字典序最小的无重复字符的子序列，包含原串所有字符
 // LC316 https://leetcode.cn/problems/remove-duplicate-letters/
+//       https://atcoder.jp/contests/abc299/tasks/abc299_g
 // EXTRA: 重复个数不超过 limit https://leetcode.cn/contest/tianchi2022/problems/ev2bru/
 func removeDuplicateLetters(s string) string {
 	left := ['z' + 1]int{}
 	for _, c := range s {
 		left[c]++
 	}
-	inSt := ['z' + 1]bool{}
 	st := []rune{}
+	inSt := ['z' + 1]bool{}
 	for _, c := range s {
 		left[c]--
 		if inSt[c] {

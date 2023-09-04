@@ -90,9 +90,9 @@ func init() {
 		"beans", "a",
 		"mat", "a",
 		"matrix", "a",
-		"grid", "g",
-		"grid1", "g1",
-		"grid2", "g2",
+		"grid", "a",
+		"grid1", "a1",
+		"grid2", "a2",
 		"words", "a",
 		"events", "a",
 
@@ -104,6 +104,7 @@ func init() {
 		"s2", "y",
 
 		// 其余常见变量名
+		"number", "n",
 		"num", "n",
 		"num1", "x",
 		"num2", "y",
@@ -119,6 +120,7 @@ func init() {
 		"startPos", "st",
 		"start", "st",
 		"source", "st",
+		"destination", "end",
 		"target", "tar",
 		"total", "tot",
 		"limit", "lim",
@@ -130,6 +132,7 @@ func init() {
 		"diff", "d",
 		"event1", "e1",
 		"event2", "e2",
+		"lower", "low",
 	}
 	for i := range oldNew {
 		oldNew[i] += " " // 由于要匹配变量名+空格+类型，为了防止修改到意外的位置，通过加一个空格来简单地实现匹配

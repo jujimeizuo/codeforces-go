@@ -16,6 +16,7 @@
 
 [不了解 Go？快速入门教程](https://gobyexample-cn.github.io/)
 
+- [集合论与位运算](https://leetcode.cn/circle/discuss/CaOJ45/)
 - 数据结构
   - [单调栈 monotone_stack.go](/copypasta/monotone_stack.go)
   - [单调队列 monotone_queue.go](/copypasta/monotone_queue.go)
@@ -30,6 +31,7 @@
     - 回滚操作（动态图连通性）
   - [稀疏表（ST 表）sparse_table.go](/copypasta/sparse_table.go)
   - [树状数组 fenwick_tree.go](/copypasta/fenwick_tree.go)
+    - 差分树状数组（支持区间加、区间求和）
   - [线段树 segment_tree.go](/copypasta/segment_tree.go)
     - 延迟标记（懒标记）
     - 动态开点
@@ -87,22 +89,27 @@
     - 中国剩余定理（CRT）
       - 扩展中国剩余定理
     - 离散对数
-      - 大步小步算法（BSGS）
-        - 扩展大步小步算法
-      - 二次剩余
-      - Jacobi 符号
-    - 组合数学
-      - 卢卡斯定理
-      - 卡特兰数
-      - 默慈金数
-      - 那罗延数
-      - 斯特林数
-        - 第一类斯特林数（轮换）
-        - 第二类斯特林数（子集）
-      - 贝尔数
+    - 大步小步算法（BSGS）
+      - 扩展大步小步算法
+    - 二次剩余
+    - Jacobi 符号
+    - N 次剩余
+    - 卢卡斯定理
+      - 扩展卢卡斯定理
+    - 卡特兰数
+    - 默慈金数
+    - 那罗延数
+    - 斯特林数
+      - 第一类斯特林数（轮换）
+      - 第二类斯特林数（子集）
+    - 贝尔数
+    - 欧拉数
     - 莫比乌斯函数
     - 数论分块
     - 杜教筛
+  - [组合数学 math_comb.go](/copypasta/math_comb.go)
+    - 常见模型
+    - 常用恒等式
     - 容斥原理
   - [快速傅里叶变换 FFT math_fft.go](/copypasta/math_fft.go)
   - [快速数论变换 NTT math_ntt.go](/copypasta/math_ntt.go)
@@ -192,6 +199,7 @@
     - Johnson
     - 0-1 BFS（双端队列 BFS）
     - 字典序最小最短路
+    - 同余最短路
   - 最小环
   - 最小生成树（MST）
     - Kruskal
@@ -280,13 +288,30 @@
 
 通过大量的构造题训练，提高观察能力，快速找到切题入口。具体见我在知乎上的这篇 [回答](https://www.zhihu.com/question/353734418/answer/2353160035)。
 
-### Rating >= 2100
+### Rating >= 2100（个人训练用，仅供参考）
 
-这一阶段要想上分，应以 DP 为主，图论和数据结构为辅。难度范围选择同上，可以根据自己在该项的能力上下调整。
+#### 大开脑洞
 
-我的 Codeforces 账号：
+- [构造](https://codeforces.com/problemset?tags=constructive%20algorithms,2000-2500)
+- [贪心](https://codeforces.com/problemset?tags=greedy,2000-2500)
+- [交互](https://codeforces.com/problemset?tags=interactive,2000-2500)
 
-[![0x3F](https://img.shields.io/badge/0x3F-MASTER%202189-orange?style=for-the-badge)](https://codeforces.com/profile/0x3F)
+#### 数学抽象
+
+- [DP](https://codeforces.com/problemset?tags=dp,2000-2500)
+- [数论](https://codeforces.com/problemset?tags=number%20theory,2000-2500)
+- [组合计数](https://codeforces.com/problemset?tags=combinatorics,2000-2500)
+- [概率期望](https://codeforces.com/problemset?tags=probabilities,2000-2500)
+- [博弈](https://codeforces.com/problemset?tags=games,2000-2500)
+
+#### 建模转换
+
+- [图&树](https://codeforces.com/problemset?tags=combine-tags-by-or,graphs,trees,flows,dsu,2-sat,graph%20matchings,shortest%20paths,2000-2500)
+- [字符串](https://codeforces.com/problemset?tags=string%20suffix%20structures,combine-tags-by-or,strings,2000-2500)
+
+**我的 Codeforces 账号**
+
+[![0x3F](https://img.shields.io/badge/0x3F-MASTER%202208-orange?style=for-the-badge)](https://codeforces.com/profile/0x3F)
 
 
 ## 测试及对拍 Testing
@@ -383,6 +408,10 @@
 
 [[杂谈]OI/ACM中冷门算法](https://zhuanlan.zhihu.com/p/21924647)
 
+[Things I don't know](https://codeforces.com/blog/entry/92248)
+
+> [meme] If you know at least 3 of these things and you are not red — you are doing it wrong. Stop learning useless algorithms, go and solve some problems, learn how to use binary search.
+
 https://blog.csdn.net/calabash_boy/article/details/79973483
 
 https://github.com/zimpha/algorithmic-library
@@ -399,7 +428,7 @@ My GoLand `Live Templates` and `Postfix Completion` [settings](/misc/my_goland_t
 
 ### Useful Tools
 
-[GeoGebra 经典](https://www.geogebra.org/classic)
+[GeoGebra](https://www.geogebra.org/classic)
 
 [Draw Geometry](https://csacademy.com/app/geometry_widget/)
 

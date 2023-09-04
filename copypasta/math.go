@@ -23,10 +23,8 @@ https://euler.stephan-brumme.com/toolbox/
 
 NOTE: a%-b == a%b
 NOTE: 对于整数来说有
-       ax≤b  =>  x≤⌊b/a⌋
-       ax<b  =>  x<⌈b/a⌉
-       ax≥b  =>  x≥⌈b/a⌉
-       ax>b  =>  x>⌊b/a⌋
+       ax≤b  =>  x≤⌊b/a⌋       ax<b  =>  x<⌈b/a⌉
+       ax>b  =>  x>⌊b/a⌋       ax≥b  =>  x≥⌈b/a⌉
 NOTE: ⌊⌊x/n⌋/m⌋ = ⌊x/(n*m)⌋
 NOTE: ⌈⌈x/n⌉/m⌉ = ⌈x/(n*m)⌉
 
@@ -42,6 +40,20 @@ GP: Sn = a1*(q^n-1)/(q-1), q!=1
 若干无穷级数之和的公式 https://mathwords.net/mugenwa
 ∑^∞ r^i = 1/(1-r)
 ∑^∞ i*r^i = r/(1-r)^2
+
+等幂和 Faulhaber's formula
+https://zh.wikipedia.org/wiki/%E7%AD%89%E5%B9%82%E6%B1%82%E5%92%8C#%E4%B8%80%E8%88%AC%E6%95%B0%E5%88%97%E7%9A%84%E7%AD%89%E5%B9%82%E5%92%8C
+1^2 + ... + n^2 = n*(n+1)*(2*n+1)/6
+1^3 + ... + n^3 = [n(n+1)/2]^2
+
+处理绝对值·曼哈顿距离转切比雪夫距离
+每个点 (x,y) 改成 (x+y,x-y)
+|x1-x2|+|y1-y2| 就可以用 max(|x1'-x2'|,|y1'-y2'|) 来计算了
+https://codeforces.com/problemset/problem/1689/D
+LC1131 https://leetcode.cn/problems/maximum-of-absolute-value-expression/
+
+处理绝对值·分类讨论
+https://leetcode.cn/problems/reverse-subarray-to-maximize-array-value/solution/bu-hui-hua-jian-qing-kan-zhe-pythonjavac-c2s6/
 
 勾股数 https://oeis.org/A008846
 斜边 https://oeis.org/A004613 Numbers that are divisible only by primes congruent to 1 mod 4
@@ -160,7 +172,7 @@ LC1387 https://leetcode.cn/problems/sort-integers-by-the-power-value/
 3126 https://www.luogu.com.cn/problem/UVA12101 https://www.luogu.com.cn/problem/SP1841 BFS
 3421 质因数幂次和 可重排列
 3292 https://www.luogu.com.cn/problem/UVA11105 在 Z={4k+1} 上筛素数
-3641 https://www.luogu.com.cn/problem/UVA11287 Carmichael Numbers https://oeis.org/A002997
+3641 https://www.luogu.com.cn/problem/UVA11287 Carmichael Numbers https://oeis.org/A002997 https://en.wikipedia.org/wiki/Carmichael_number
 4.1 节练习题（模运算的世界）
 1150 https://www.luogu.com.cn/problem/UVA10212
 1284
@@ -175,7 +187,7 @@ CF tag https://codeforces.com/problemset?order=BY_RATING_ASC&tags=combinatorics
 */
 
 func _(abs func(int64) int64, max func(int64, int64) int64) {
-	const mod int64 = 1e9 + 7 // 998244353
+	const mod = 1_000_000_007 // 998244353
 	pow := func(x, n, p int64) (res int64) {
 		x %= p
 		res = 1
@@ -208,6 +220,8 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	TIPS: 一般 LCM 的题目都需要用 LCM=x*y/GCD 转换成研究 GCD 的性质
 	todo https://atcoder.jp/contests/abc162/tasks/abc162_e
 	     https://atcoder.jp/contests/abc206/tasks/abc206_e
+
+	todo 基于值域预处理的快速 GCD https://www.luogu.com.cn/problem/P5435
 
 	GCD = 1 的子序列个数 https://codeforces.com/problemset/problem/803/F https://ac.nowcoder.com/acm/problem/112055
 	见后面的 mu
@@ -580,7 +594,7 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	Values of records https://oeis.org/A005250
 	Gap 均值 https://oeis.org/A286888 a(n)= floor((prime(n) - 2)/(n - 1))
 	相关题目 https://www.luogu.com.cn/problem/P6104 https://class.luogu.com.cn/classroom/lgr69
-	https://codingcompetitions.withgoogle.com/kickstart/round/0000000000435a5b/000000000077a8e6
+	Kick Start 2021 Round B Consecutive Primes https://codingcompetitions.withgoogle.com/kickstart/round/0000000000435a5b/000000000077a8e6
 	Numbers whose distance to the closest prime number is a prime number https://oeis.org/A160666
 
 	孪生素数 https://en.wikipedia.org/wiki/Twin_prime https://oeis.org/A001359 https://oeis.org/A006512 https://oeis.org/A077800
@@ -726,7 +740,7 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	}
 
 	// 预处理: [2,mx] 范围内的质数
-	// 埃拉托斯特尼筛法 Sieve of Eratosthenes
+	// 埃筛 埃氏筛 埃拉托斯特尼筛法 Sieve of Eratosthenes
 	// https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes
 	// https://oeis.org/A055399 Number of stages of sieve of Eratosthenes needed to identify n as prime or composite
 	// https://oeis.org/A230773 Minimum number of steps in an alternate definition of the Sieve of Eratosthenes needed to identify n as prime or composite
@@ -759,9 +773,11 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 		}
 	}
 
-	// 线性筛 欧拉筛
+	// 线筛 线性筛 欧拉筛
 	// 每个合数都从其 LPF 标记到（在遍历到 i = 合数/LPF 的时候，标记这些合数）
 	// 参考 https://oi-wiki.org/math/sieve/ 以及进阶指南 p.136-137
+	// mx = 3e7 时比埃氏筛大约快 100ms https://codeforces.com/problemset/submission/986/206447142
+	//                              https://codeforces.com/problemset/submission/986/206445786
 	// https://www.luogu.com.cn/problem/P3383
 	sieveEuler := func() {
 		const mx int = 1e7
@@ -886,7 +902,7 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	primeDivisors2 := func(x int64) (primes []int64) {
 		if x&1 == 0 {
 			primes = append(primes, 2)
-			x >>= bits.TrailingZeros64(uint64(x))
+			x /= x & -x // 去掉所有的因子 2
 		}
 		for i := int64(3); i*i <= x; i += 2 {
 			if x%i > 0 {
@@ -1100,13 +1116,35 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 		return
 	}
 
+	// 无需额外空间的写法
+	// https://leetcode.cn/problems/smallest-integer-divisible-by-k/solution/san-chong-suan-fa-you-hua-pythonjavacgo-tk4cj/
+	divisorsO1Space := func(n int64) {
+		// 从小到大枚举不超过 sqrt(n) 的因子
+		i := int64(1)
+		for ; i*i <= n; i++ {
+			if n%i == 0 {
+				// do i ...
+			}
+		}
+		// 从小到大枚举大于 sqrt(n) 的因子
+		i--
+		if i*i == n {
+			i-- // 避免重复统计
+		}
+		for ; i > 0; i-- {
+			if n%i == 0 {
+				// do m/i ...
+			}
+		}
+	}
+
 	// Number of odd divisors of n https://oeis.org/A001227
 	// a(n) = d(2*n) - d(n)
 	// 亦为整数 n 分拆成若干连续整数的方法数
 	// Number of partitions of n into consecutive positive integers including the trivial partition of length 1
 	// e.g. 9 = 2+3+4 or 4+5 or 9 so a(9)=3
 	// 相关题目 LC829 https://leetcode.cn/problems/consecutive-numbers-sum/
-	// https://codingcompetitions.withgoogle.com/kickstart/round/0000000000435c44/00000000007ec1cb
+	// Kick Start 2021 Round C Alien Generator https://codingcompetitions.withgoogle.com/kickstart/round/0000000000435c44/00000000007ec1cb
 	oddDivisorsNum := func(n int) (ans int) {
 		for i := 1; i*i <= n; i++ {
 			if n%i == 0 {
@@ -1708,6 +1746,13 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 		}
 	}
 
+	// 欧拉定理
+	// 如果 gcd(a,n) = 1，则 a^φ(n) ≡ 1(mod n)
+	// 推论：如果 gcd(a,n) = 1，则 a^x ≡ 1(mod n) 的最小正整数解是 φ(n) 的因子（证明见《算法竞赛进阶指南》）
+	// LC1015 https://leetcode.cn/problems/smallest-integer-divisible-by-k/ http://poj.org/problem?id=3696
+	// https://atcoder.jp/contests/abc222/tasks/abc222_g
+	// https://oj.socoding.cn/p/1981
+
 	// 扩展欧拉定理（降幂公式）
 	// https://oi-wiki.org/math/fermat/#_5
 	// https://zhuanlan.zhihu.com/p/42632291
@@ -1810,15 +1855,50 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	https://oeis.org/A090938 Least multiple of n == 1 (mod prime(n))
 	https://oeis.org/A090939 Least multiple of n == -1 (mod prime(n))
 	https://oeis.org/A091185 a(n) = A090938(n)/n      n^-1 mod prime(n)
-
-	涉及到 0 与逆元的题目
-	https://codeforces.com/problemset/problem/543/D
-	https://ac.nowcoder.com/acm/contest/39759/D
 	*/
+	{
+		/* 涉及到 0 与逆元的题目（mod 为质数）
+		例如 res = mod^k * x % mod，后面要除掉 mod^k，得到 x（如果前面直接取模会得到 0，没法保留 x 的信息）
+		这个时候可以用二元组 (k, x) 来表示 res%mod（这里 k>=0）
+		如果 k>0 那么 res=0
+		乘法运算 (k1, x1) * (k2, x2) = (k1+k2, x1*x2)
+		除法运算 (k1, x1) / (k2, x2) = (k1-k2, x1*inv(x2))  这里 k1>=k2
+		加法运算（见下面的 add1）
+		https://codeforces.com/contest/1848/problem/E
+		https://codeforces.com/problemset/problem/543/D
+		https://ac.nowcoder.com/acm/contest/39759/D
+		*/
+		type pair struct {
+			k int
+			x int64
+		}
+		// 计算 (k,x) + (0,1)
+		// https://codeforces.com/problemset/problem/543/D
+		add1 := func(p pair) pair {
+			if p.k > 0 {
+				return pair{0, 1}
+			}
+			if p.x == mod-1 {
+				return pair{1, 1}
+			}
+			return pair{0, p.x + 1}
+		}
+		mul := func(p, q pair) pair { return pair{p.k + q.k, p.x * q.x % mod} }
+		div := func(p, q pair) pair { return pair{p.k - q.k, p.x * pow(q.x, mod-2, mod) % mod} }
+		// p%mod 的实际值
+		val := func(p pair) int64 {
+			if p.k > 0 {
+				return 0
+			}
+			return p.x
+		}
+
+		_ = []any{add1, mul, div, val}
+	}
 
 	// 二元一次不定方程（线性丢番图方程中的一种）https://en.wikipedia.org/wiki/Diophantine_equation
 	// exgcd solve equation ax+by=gcd(a,b)
-	// we have |x|<=b and |y|<=a in result (x,y)
+	// 特解满足 |x|<=|b|, |y|<=|a|
 	// https://cp-algorithms.com/algebra/extended-euclid-algorithm.html
 	var exgcd func(a, b int64) (gcd, x, y int64)
 	exgcd = func(a, b int64) (gcd, x, y int64) {
@@ -1828,6 +1908,32 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 		gcd, y, x = exgcd(b, a%b)
 		y -= a / b * x
 		return
+	}
+
+	// 任意非零模数逆元 ax ≡ 1 (mod m)，要求 |gcd(a,m)| = 1     注：不要求 m 为质数
+	// 返回最小正整数解
+	// 模板题 https://www.luogu.com.cn/problem/P1082
+	// https://codeforces.com/problemset/problem/772/C
+	invM := func(a, m int64) int64 {
+		g, x, _ := exgcd(a, m)
+		if g != 1 && g != -1 {
+			return -1
+		}
+		return (x%m + m) % m
+	}
+
+	// ax ≡ b (mod m)，要求 gcd(a,m) | b       注：不要求 m 为质数
+	// 或者，ax-b 是 m 的倍数，求最小非负整数 x
+	// 或者，求 ax-km = b 的一个最小非负整数解
+	// 示例代码 https://codeforces.com/contest/1748/submission/205834351
+	invM2 := func(a, b, m int64) int64 {
+		g, x, _ := exgcd(a, m)
+		if b%g != 0 {
+			return -1
+		}
+		x *= b / g
+		m /= g
+		return (x%m + m) % m
 	}
 
 	// a*x + b*y = c 的通解为
@@ -1846,6 +1952,7 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	// 使非负解 x+y 尽量小 https://codeforces.com/problemset/problem/1244/C
 	//    最简单的做法就是 min(x1+y1, x2+y2)
 	// 需要转换一下符号 https://atcoder.jp/contests/abc186/tasks/abc186_e
+	// https://codeforces.com/problemset/problem/1748/D
 	solveLinearDiophantineEquations := func(a, b, c int64) (n, x1, y1, x2, y2 int64) {
 		g, x0, y0 := exgcd(a, b)
 
@@ -1885,7 +1992,7 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 		return
 	}
 
-	// 关于 ax+by+cz=n 的解的个数（或者是三币种找零）
+	// 关于 ax+by+cz=n 的解的个数（三币种找零问题）
 	// On the number of solutions of the Diophantine equation of Frobenius – General case https://core.ac.uk/download/pdf/14375587.pdf
 	// The Number of Solutions to ax + by + cz = n and its Relation to Quadratic Residues https://cs.uwaterloo.ca/journals/JIS/VOL23/Binner/binner4.pdf
 	// 上面这篇提出了一个 O(log max(a,b,c)) 的算法来求 N(a,b,c;n)
@@ -1896,16 +2003,16 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	// https://oeis.org/A025795 N(2,3,5;n)
 	// https://oeis.org/A008680 N(3,4,5;n)
 
-	// 任意非零模数逆元 ax ≡ 1 (mod m)
-	// 返回最小正整数解
-	// 模板题 https://www.luogu.com.cn/problem/P1082
-	// https://codeforces.com/problemset/problem/772/C
-	invM := func(a, m int64) int64 { _, x, _ := exgcd(a, m); return (x%m + m) % m }
-
 	// 费马小定理求质数逆元
 	// ax ≡ 1 (mod p)
 	// x^-1 ≡ a^(p-2) (mod p)
-	invP := func(a, p int64) int64 { return pow(a, p-2, p) }
+	// 滑窗 https://codeforces.com/contest/1833/problem/F
+	invP := func(a, p int64) int64 {
+		if a <= 0 {
+			panic(-1)
+		}
+		return pow(a, p-2, p)
+	}
 
 	// 有理数取模
 	// 模板题 https://www.luogu.com.cn/problem/P2613
@@ -1920,13 +2027,14 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	// http://blog.miskcoo.com/2014/09/linear-find-all-invert
 	// https://www.zhihu.com/question/59033693
 	// 模板题 https://www.luogu.com.cn/problem/P3811
-	initAllInv := func(p int) []int64 {
-		inv := make([]int64, p)
+	{
+		const mod = 998244353
+		const mx int = 1e6
+		inv := [mx + 1]int64{}
 		inv[1] = 1
-		for i := 2; i < p; i++ {
-			inv[i] = int64(p-p/i) * inv[p%i] % int64(p)
+		for i := 2; i <= mx; i++ {
+			inv[i] = int64(mod-mod/i) * inv[mod%i] % mod
 		}
-		return inv
 	}
 
 	// 线性求逆元·其二（离线逆元）
@@ -2029,7 +2137,9 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	// todo https://www.luogu.com.cn/blog/command-block/yuan-gen-li-san-dui-shuo-xiang-guan
 	//      http://blog.miskcoo.com/2015/05/discrete-logarithm-problem
 	//      https://www.luogu.com.cn/blog/hzoiliuchang/shuo-lun-zhi-bsgs-suan-fa
+	//
 	// 模板题 https://www.luogu.com.cn/problem/P3846
+	// https://atcoder.jp/contests/abc222/tasks/abc222_g
 	// todo https://atcoder.jp/contests/abc270/tasks/abc270_g
 	babyStepGiantStep := func(a, b, p, k int64) int64 { // 非 exBSGS 下 k=1
 		b %= p
@@ -2319,6 +2429,8 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 		H = func(kinds, length int) int64 { return C(kinds+length-1, length) }
 
 		// 卡特兰数 Cn = C(2n,n)/(n+1) = C(2n,n)-C(2n,n-1)
+		// C(n) = 2*(2*n-1)*C(n-1)/(n+1) with C(0) = 1
+		// 证明见这个视频末尾 https://www.bilibili.com/video/BV1E8411f7Mu/?t=33m16s
 		// https://en.wikipedia.org/wiki/Catalan_number
 		// https://oeis.org/A000108
 		// 从 n=0 开始：1, 1, 2, 5, 14, 42, 132, 429, 1430, 4862, 16796, 58786, 208012, 742900, 2674440, 9694845, 35357670, 129644790
@@ -2326,6 +2438,8 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 		// Number of noncrossing partitions of the n-set (不相交握手问题) LC1259 https://leetcode-cn.com/problems/handshakes-that-dont-cross/
 		// Dyck Path https://mathworld.wolfram.com/DyckPath.html
 		// https://www.luogu.com.cn/problem/P1641
+		// 
+		// https://codeforces.com/problemset/problem/1830/C
 		//
 		// 将全部偶数提取一个 2，可得 (2n)! = 1*3*5*...*(2n-1) * (2^n) * (n!)
 		// 故 C(2*n,n)/(n+1) = (2*n)!/(n!)/(n+1)! = 1*3*5*...*(2n-1)*(2^n)/(n+1)!
@@ -2681,6 +2795,7 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	//  https://www.luogu.com.cn/problem/P2522
 	//  https://www.luogu.com.cn/blog/203623/sol-jrksjr6D https://www.luogu.com.cn/blog/Silver187/qian-lian-di-shi-jie-ti-xie
 	//  GCD=1 的子序列个数 https://codeforces.com/problemset/problem/803/F https://ac.nowcoder.com/acm/problem/112055
+	//  GCD=1 的数对个数 * (i-j) https://codeforces.com/problemset/problem/1780/F
 
 	// todo 推式子 https://ac.nowcoder.com/acm/contest/11171/E
 
@@ -2704,7 +2819,8 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	// ∑∑(n%i)*(m%j) 代码见下面的 floorLoop2 https://www.luogu.com.cn/problem/P2260
 	// [L,R] 内任意 k 个不同数字的 GCD 有多少种 https://ac.nowcoder.com/acm/contest/35232/C
 	// https://codeforces.com/problemset/problem/1789/E
-	// https://codeforces.com/contest/938/problem/C
+	// https://codeforces.com/problemset/problem/938/C
+	// https://codeforces.com/problemset/problem/449/A
 	// 数论分块优化 DP https://codeforces.com/problemset/problem/1603/C
 	//
 	// https://oeis.org/A257212           Least d>0 such that floor(n/d) - floor(n/(d+1)) <= 1
@@ -2924,10 +3040,10 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 		sqCheck, cubeCheck, sqrt, cbrt, bottomDiff,
 		gcd, gcdPrefix, gcdSuffix, lcm, lcms, makeFrac, lessFrac, countDifferentSubsequenceGCDs, floorSum,
 		isPrime, sieve, sieveEuler, sieveEulerTemplate, factorize, primeDivisors, primeDivisors2, powerOfFactorialPrimeDivisor, primeExponentsCountAll, primeExponentsCount,
-		divisors, oddDivisorsNum, maxSqrtDivisor, divisorsAll, primeFactorsAll, lpfAll, initSquarefreeNumbers, distinctPrimesCountAll,
+		divisors, divisorsO1Space, oddDivisorsNum, maxSqrtDivisor, divisorsAll, primeFactorsAll, lpfAll, initSquarefreeNumbers, distinctPrimesCountAll,
 		calcPhi, initPhi, sievePhi, exPhi,
 		primitiveRoot, primitiveRootsAll,
-		exgcd, solveLinearDiophantineEquations, invM, invP, divM, divP, initAllInv, calcAllInv,
+		exgcd, solveLinearDiophantineEquations, invM, invM2, invP, divM, divP, calcAllInv,
 		crt, excrt,
 		babyStepGiantStep, exBSGS,
 		modSqrt, isQuadraticResidue,
@@ -2940,274 +3056,28 @@ func _(abs func(int64) int64, max func(int64, int64) int64) {
 	}
 }
 
-/* 组合数学（概率与期望见 dp.go 中的概率 DP）
-https://en.wikipedia.org/wiki/Combination
-https://en.wikipedia.org/wiki/Enumerative_combinatorics
-https://en.wikipedia.org/wiki/Binomial_theorem
+/* hack overflow
+1<<32 + 95168 = 2^6 * 3 * 7^5 * 11^3
+1<<32 + 66304 = 2^8 * 5^2 * 11 * 13^2 * 19^2
+1<<32 + 48704 = 2^6 * 3^2 * 5^3 * 11^2 * 17 * 29
+1<<32 - 49216 = 2^6 * 3^7 * 5 * 17 * 19^2
 
-一些组合问题
-https://codeforces.com/problemset/problem/213/B
-https://codeforces.com/problemset/problem/300/C
-https://codeforces.com/problemset/problem/520/E
-https://codeforces.com/problemset/problem/559/C
-https://codeforces.com/problemset/problem/869/C
-https://codeforces.com/problemset/problem/1204/E 推荐
-https://codeforces.com/problemset/problem/1261/D2 推荐
-https://codeforces.com/problemset/problem/1288/C
-https://codeforces.com/problemset/problem/1342/E
-https://codeforces.com/problemset/problem/1359/E
-https://atcoder.jp/contests/abc171/tasks/abc171_f 推荐 巧妙去重
-
-放球问题
-https://baike.baidu.com/item/%E6%94%BE%E7%90%83%E9%97%AE%E9%A2%98
-https://www.cnblogs.com/Xing-Ling/p/11176939.html
-https://blog.csdn.net/weixin_33759269/article/details/86017932
-扩展例题 https://codeforces.com/problemset/problem/893/E
-todo 十二重计数法 https://www.luogu.com.cn/problem/P5824
-
-todo 组合数性质 | 二项式推论 https://oi-wiki.org/math/combination/#_13
-todo NOI 一轮复习 IV：组合计数 https://www.luogu.com.cn/blog/ix-35/noi-yi-lun-fu-xi-iv-zu-ge-ji-shuo
-一些常用组合恒等式的解释 https://www.zhihu.com/question/26094736 https://zhuanlan.zhihu.com/p/82241906
-递推式 C(n-1, k-1) + C(n-1, k) = C(n, k)
-上项求和 C(r, r) + C(r+1, r) + ... + C(n, r) = C(n+1, r+1)
-上式亦为 C(n, 0) + C(n+1, 1) + ... + C(n+m, m) = C(n+m+1, m)
-   https://atcoder.jp/contests/abc154/tasks/abc154_f
-   https://codeforces.com/contest/1696/problem/E
-范德蒙德恒等式 Vandermonde's identity https://en.wikipedia.org/wiki/Vandermonde%27s_identity
-∑i=[0..k] C(n,i)*C(m,k-i) = C(n+m,k)   https://www.luogu.com.cn/problem/P7386
-特别地：∑i=[0..m] C(n,i)*C(m,i) = ∑i=[0..m] C(n,i)*C(m,m-i) = C(n+m,m)   https://codeforces.com/problemset/problem/785/D
-∑i>=n and k-i>=m C(i,n)*C(k-i,m) = C(k+1,n+m+1)   https://www.luogu.com.cn/blog/hanzhongtlx/ti-xie-0-1-trie
-组合恒等式之万金油方法 https://zhuanlan.zhihu.com/p/25195967
-∑i*C(n,i) = n*2^(n-1)
-组合数奇偶性：n&m==m 时 C(n,m) 为奇数，否则为偶数
-
-NOTE: 涉及到相邻的组合问题：可以考虑当前位置和左侧位置所满足的性质（例题 https://atcoder.jp/contests/abc167/tasks/abc167_e）
-
-杨辉三角每行之积 https://oeis.org/A001142 a(n) = Product_{k=1..n} k^(2k-1-n)
-A001142(n) 为奇数时的 n 是 2^k - 1 形式的
-
-https://oeis.org/A002109 Hyperfactorials: Product_{k=1..n} k^k
-
-隔三组合数 https://oeis.org/A024493 https://oeis.org/A024494 https://oeis.org/A024495 C(n,0) + C(n,3) + ... + C(n,3[n/3])
-隔四组合数 https://oeis.org/A038503 https://oeis.org/A038504 https://oeis.org/A038505 https://oeis.org/A000749
-
-Tetrahedral (or triangular pyramidal) numbers: a(n) = C(n+2,3) = n*(n+1)*(n+2)/6 https://oeis.org/A000292
-a(n) = Sum_{1<=i<=j<=n} j-i
-a(n) = sum of all the possible products p*q where (p,q) are ordered pairs and p + q = n + 1
-a(n) = 长度为 n 的字符串的所有子串长度之和
-
-隔板法 https://zh.wikipedia.org/wiki/%E9%9A%94%E6%9D%BF%E6%B3%95
-
-todo 可重集排列组合 https://oi-wiki.org/math/combination/
-todo https://codeforces.com/problemset/problem/451/E
-不相邻的排列 https://oi-wiki.org/math/combination/#_10
-错排 https://oeis.org/A000166 subfactorial numbers  a[n]=(n-1)*(a[n-1]+a[n-2])  https://zh.wikipedia.org/wiki/%E9%94%99%E6%8E%92%E9%97%AE%E9%A2%98
-	https://oeis.org/A082491 n! * A000166(n)   a(n+2) = (n+2)*(n+1)*(a(n+1)+(n+1)*a(n))
-	https://oeis.org/A000255 错排的比较对象的范围是 [1,n+1]  a(n) = n*a(n-1) + (n-1)*a(n-2), a(0) = a(1) = 1
-	https://oeis.org/A000153 错排的比较对象的范围是 [1,n+2]  a(n) = n*a(n-1) + (n-2)*a(n-2), a(0) = 0, a(1) = 1
-	https://oeis.org/A000261 错排的比较对象的范围是 [1,n+3]  a(n) = n*a(n-1) + (n-3)*a(n-2), a(1) = 0, a(2) = 1
-	https://oeis.org/A001909 错排的比较对象的范围是 [1,n+4]  a(n) = n*a(n-1) + (n-4)*a(n-2), a(2) = 0, a(3) = 1
-		https://atcoder.jp/contests/abc172/tasks/abc172_e
-    https://oeis.org/A127548 和两个排列都不同的错排数（这两个排列也互为错排）
-圆排列 https://zh.wikipedia.org/wiki/%E5%9C%86%E6%8E%92%E5%88%97
-    Q(n,n) = (n-1)!
-
-https://oeis.org/A000522 Total number of arrangements of a set with n elements: a(n) = Sum_{k=0..n} n!/k!    Total number of permutations of all subsets of an n-set
-                          a(n) = n*a(n-1) + 1, a(0) = 1
-                               = floor(e * n!)
-https://oeis.org/A007526 A000522(n)-1 去掉空集
-https://oeis.org/A030297 a(n) = sum_{k=0...n} (n! / k!) * k^2     For n>=2, a(n) = floor(2*e*n! - n - 2)
-https://oeis.org/A019461 Add 1, multiply by 1, add 2, multiply by 2, etc.; start with 0
-
-二阶递推数列通项 https://zhuanlan.zhihu.com/p/75096951
-凯莱公式 Cayley’s formula: the number of trees on n labeled vertices is n^(n-2).
-普吕弗序列 Prüfer sequence: 由树唯一地产生的序列
-约瑟夫问题 Josephus Problem https://cp-algorithms.com/others/josephus_problem.html https://en.wikipedia.org/wiki/Josephus_problem
-Stern-Brocot 树与 Farey 序列 https://oi-wiki.org/misc/stern-brocot/ https://cp-algorithms.com/others/stern_brocot_tree_farey_sequences.html
-
-* 生成函数/母函数 *
-https://en.wikipedia.org/wiki/Generating_function
-https://oi-wiki.org/math/gen-func/intro/
-todo 一些常见数列的生成函数推导 https://www.luogu.com.cn/blog/nederland/girl-friend
-
-整数分拆 https://oeis.org/A000041 https://en.wikipedia.org/wiki/Partition_(number_theory)
-五边形数与整数拆分问题
-    https://en.wikipedia.org/wiki/Pentagonal_number_theorem
-    https://en.wikipedia.org/wiki/Fermat_polygonal_number_theorem
-    https://studyingfather.com/archives/3000
-    https://blog.csdn.net/visit_world/article/details/52734860
-    相关题目 https://www.luogu.com.cn/problem/P6189
-https://oeis.org/A104513 The number of consecutive integers > 1 beginning with A104512(n), the sum of which equals n, or 0 if impossible.
-						a(n)=0 iff n=2^k
-https://oeis.org/A069283 将 n 分拆成至少两个连续整数的方法数 = n 的奇因子数 - 1
-						见上面的 oddDivisorsNum 函数
-https://oeis.org/A018819 Binary partition function: number of partitions of n into powers of 2
-	相关题目 https://www.luogu.com.cn/problem/P6065 http://poj.org/problem?id=2229
-https://oeis.org/A000740 将 n 分拆成若干互质整数的方法数 a(n) = sum_{d|n} mu(n/d)*2^(d-1)
-
-华林问题 Waring's problem
-https://en.wikipedia.org/wiki/Waring%27s_problem
-https://oeis.org/A002804 (Presumed) solution to Waring's problem: g(k) = 2^k + floor((3/2)^k) - 2
-g(k) is the smallest number s such that every natural number is the sum of at most s k-th powers of natural numbers
-k=2 https://oeis.org/A002828 Least number of squares that add up to n
-	https://oeis.org/A000415 Numbers that are the sum of 2 but no fewer nonzero squares
-	https://oeis.org/A000419 Numbers that are the sum of 3 but no fewer nonzero squares
-	https://oeis.org/A004215 Numbers that are the sum of 4 but no fewer nonzero squares
-	四平方和定理 Lagrange's four-square theorem https://en.wikipedia.org/wiki/Lagrange%27s_four-square_theorem
-	https://oeis.org/A006431 Numbers that have a unique partition into a sum of four non-negative squares
-k=3 https://oeis.org/A002376 Least number of positive cubes needed to represent n
-k=4 https://oeis.org/A002377 Least number of 4th powers needed to represent n
-
-	贪心分拆
-	Number of positive k-th powers needed to sum to n using the greedy algorithm
-	k=2 https://oeis.org/A053610 Records https://oeis.org/A006892
-	k=3 https://oeis.org/A055401 Records https://oeis.org/A055402
-		相关题目 https://codeforces.com/problemset/problem/679/B
-
-质数分拆
-https://oeis.org/A000607 Number of partitions of n into prime parts
-	https://www.luogu.com.cn/problem/P1832
-https://oeis.org/A061358 Number of ways of writing n=p+q with p, q primes and p>=q
-https://oeis.org/A067187 Numbers that can be expressed as the sum of two primes in exactly one way
-https://oeis.org/A068307 number of partitions of n into a sum of three primes
-https://oeis.org/A071335 Number of partitions of n into a sum of at most three primes
-https://oeis.org/A023022 Number of partitions of n into two relatively prime parts
-	a(n) = phi(n)/2 for n >= 3
-
-https://oeis.org/A000404 Numbers that are the sum of 2 nonzero squares
-https://oeis.org/A003325 Numbers that are the sum of 2 positive cubes
-
-https://oeis.org/A000081 Number of unlabeled rooted trees with n nodes (or connected functions with a fixed point)
-
-Maximum product of two integers whose sum is n https://oeis.org/A002620
-Quarter-squares: floor(n/2)*ceiling(n/2). Equivalently, floor(n^2/4)
-https://oeis.org/A024206 = A002620(n+1)-1 = floor((n-1)(n+3)/4)
-
-	Maximal product of three numbers with sum n: a(n) = max(r*s*t), n = r+s+t https://oeis.org/A006501
-	a(n) = floor(n/3)*floor((n+1)/3)*floor((n+2)/3)
-	Expansion of (1+x^2) / ( (1-x)^2 * (1-x^3)^2 )
-
-	Maximal product of four nonnegative integers whose sum is n https://oeis.org/A008233
-	a(n) = floor(n/4)*floor((n+1)/4)*floor((n+2)/4)*floor((n+3)/4)
-
-	...
-
-	相关题目 https://codeforces.com/problemset/problem/1368/B
-
-没有相邻元素差值为 1 的排列个数
-https://oeis.org/A002464 Hertzsprung's problem: ways to arrange n non-attacking kings on an n X n board, with 1 in each row and column
-Also number of permutations of length n without rising or falling successions
-if n = 0 or 1 then a(n) = 1
-if n = 2 or 3 then a(n) = 0
-otherwise a(n) = (n+1)*a(n-1) - (n-2)*a(n-2) - (n-5)*a(n-3) + (n-3)*a(n-4)
-https://oeis.org/A129535 补集
-https://oeis.org/A086852 恰有一个相邻元素差值为 1 的排列个数
-https://oeis.org/A086853 恰有两个相邻元素差值为 1 的排列个数
-
-记 A = [1,2,...,n]，A 的全排列中与 A 的最大差值为 n^2/2 https://oeis.org/A007590
-Maximum sum of displacements of elements in a permutation of (1..n)
-For example, with n = 9, permutation (5,6,7,8,9,1,2,3,4) has displacements (4,4,4,4,4,5,5,5,5) with maximal sum = 40
-
-https://oeis.org/A176127 The number of permutations of {1,2,...,n,1,2,...,n} with the property that there are k numbers between the two k's in the set for k=1,...,n
-相关题目：《程序员的算法趣题》Q53 同数包夹
-
-n married couples are seated in a row so that every wife is to the left of her husband
-若不考虑顺序，则所有排列的个数为 (2n)!
-考虑顺序可以发现，对于每一对夫妻来说，妻子在丈夫左侧的情况和在右侧的情况相同且不同对夫妻之间是独立的
-因此每有一对夫妻，符合条件的排列个数就减半
-所以结果为 a(n) = (2n)!/2^n https://oeis.org/A000680
-或者见这道题目的背景 LC1359 https://leetcode-cn.com/problems/count-all-valid-pickup-and-delivery-options/
-
-NxN 大小的对称置换矩阵的个数 https://oeis.org/A000085
-这里的对称指仅关于主对角线对称
-a[i] = (a[i-1] + (i-1)*a[i-2]) % mod
-The number of n X n symmetric permutation matrices
-Number of self-inverse permutations on n letters, also known as involutions; number of standard Young tableaux with n cells
-Proof of the recurrence relation a(n) = a(n-1) + (n-1)*a(n-2):
-	number of involutions of [n] containing n as a fixed point is a(n-1);
-	number of involutions of [n] containing n in some cycle (j, n),
-	where 1 <= j <= n-1, is (n-1) times the number of involutions of [n] containing the cycle (n-1 n) = (n-1)*a(n-2)
-相关题目 https://ac.nowcoder.com/acm/contest/5389/C
-
-The number of 3 X n matrices of integers for which the upper-left hand corner is a 1,
-the rows and columns are weakly increasing, and two adjacent entries differ by at most 1
-a(n+2) = 5*a(n+1) - 2*a(n), with a(0) = 1, a(1) = 4
-https://oeis.org/A052913
-相关题目 LC1411 https://leetcode-cn.com/problems/number-of-ways-to-paint-n-x-3-grid/
-
-男厕问题 / 电话问题 https://oeis.org/A185456
-Assume that the first person to use a bank of payphones selects one at the end,
-and all subsequent users select the phone which puts them farthest from the current phone users.
-U(n) is the smallest number of phones such that n may be used without any two adjacent phones being used
-https://www.zhihu.com/question/278361000/answer/1004606685
-
-https://oeis.org/A089934 Table T(n,k) of the number of n X k matrices on {0,1} without adjacent 0's in any row or column
-https://oeis.org/A006506 上面这个 table 的对角线
-    Number of configurations of non-attacking princes on an n X n board, where a "prince" attacks the four adjacent (non-diagonal) squares
-    Also number of independent vertex sets in an n X n grid
-
-https://oeis.org/A001224 The number of inequivalent ways to pack a 2 X n rectangle with dominoes
-    If F(n) is the n-th Fibonacci number, then a(2n) = (F(2n+1) + F(n+2))/2 and a(2n+1) = (F(2n+2) + F(n+1))/2
-    https://oeis.org/A060312
-
-https://oeis.org/A001187 n 个节点的无向连通图的个数  Number of connected labeled graphs with n nodes
-相关题目：https://www.acwing.com/problem/content/309/
-
-韦德伯恩-埃瑟林顿数
-https://oeis.org/A001190 Wedderburn-Etherington numbers: unlabeled binary rooted trees (every node has out-degree 0 or 2) with n endpoints (and 2n-1 nodes in all)
-https://en.wikipedia.org/wiki/Wedderburn%E2%80%93Etherington_number
-https://mathworld.wolfram.com/WeaklyBinaryTree.html 给出了如下公式：
-    a(2n-1) = a(1)a(2n-2) + a(2)a(2n-3) + ... + a(n-1)a(n)
-    a(2n)   = a(1)a(2n-1) + a(2)a(2n-2) + ... + a(n-1)a(n+1) + a(n)(a(n)+1)/2
-https://oeis.org/A000598 Number of rooted ternary trees with n nodes
-https://oeis.org/A268172 Binary-ternary Wedderburn-Etherington numbers
-相关题目：《程序员的算法趣题》Q30 用插线板制作章鱼脚状线路
-
-https://oeis.org/A003991 Multiplication table read by antidiagonals = (n-k+1)*k
-https://oeis.org/A059036 = A003991(n, k) - 1
-
-一些二进制的计数问题见 bits.go
-
-CF 上的一些组合计数问题 http://blog.miskcoo.com/2015/06/codeforces-combinatorics-and-probabilities-problem
-
-置换群、Burnside 引理与 Pólya 定理          Polya 计数
-https://en.wikipedia.org/wiki/P%C3%B3lya_enumeration_theorem
-https://oi-wiki.org/math/permutation-group/
-todo https://atcoder.jp/contests/abc198/tasks/abc198_f
-     https://oeis.org/A054473 Number of ways of numbering the faces of a cube with nonnegative integers so that the sum of the 6 numbers is n
-
-找出 50% 作弊者 https://codingcompetitions.withgoogle.com/codejam/round/000000000043580a/00000000006d1155
-    讨论 https://codeforces.com/blog/entry/84822
-*/
-
-// 容斥原理 (PIE, the principle of inclusion and exclusion)
-// 参考《挑战程序设计竞赛》P296
-// https://codeforces.com/blog/entry/64625
-// https://ac.nowcoder.com/acm/contest/6219/C
-//
-// 多重集组合数 https://codeforces.com/problemset/problem/451/E
-// https://codeforces.com/problemset/problem/1342/E
-// 如何将问题转化成可以容斥的结构 https://codeforces.com/problemset/problem/1228/E
-// 不重不漏 https://codeforces.com/problemset/problem/1007/B
-// 与 SOS DP 结合 https://codeforces.com/problemset/problem/449/D
-// 用因子容斥 https://codeforces.com/problemset/problem/900/D
-func solveInclusionExclusion(a []int) (ans int64) {
-	n := len(a)
-	const mod int64 = 1e9 + 7 // 998244353
-	for sub := uint(0); sub < 1<<n; sub++ {
-		res := int64(0)
-		for i, v := range a {
-			if sub>>i&1 > 0 {
-				// 视情况而定，有时候包含元素 i 表示考虑这种情况，有时候表示不考虑这种情况
-				_ = v // do v...
-
-			}
-		}
-		if bits.OnesCount(sub)&1 > 0 { // 某些题目是 == 0
-			res = -res
-		}
-		ans += res // mod
-	}
-	ans = (ans%mod + mod) % mod
-	return
+1<<32 - 49216 => https://github.com/LeetCode-Feedback/LeetCode-Feedback/issues/13613 hack Java
+a := []int{2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 5, 17, 19, 19}
+for i, n := 0, len(a); i < n/2; i++ {
+	a[i], a[n-1-i] = a[n-1-i], a[i]
 }
+
+Print("[")
+for i := range a {
+	Print("[", i+1, ",", i+2, "],")
+}
+cur := len(a) + 2
+for i, c := range a {
+	for j := 1; j < c; j++ {
+		Print("[", i+1, ",", cur, "],")
+		cur++
+	}
+}
+Print("]")
+*/

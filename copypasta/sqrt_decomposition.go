@@ -7,6 +7,7 @@ import (
 
 /* 根号分治 Sqrt Decomposition
 一种技巧：组合两种算法从而降低复杂度 O(n^2) -> O(n√n)
+常用于图论或者某些数组统计类题目
 参考 Competitive Programmer’s Handbook Ch.27
 王悦同《根号算法——不只是分块》
 
@@ -17,6 +18,7 @@ import (
 当 ci ≤ √n 时，这样的对象有 O(n) 个，由于统计量 ci 很小，暴力枚举当前对象的统计量，时间复杂度为 O(n√n)。此乃算法二
 这样，以 √n 为界，我们将所有对象划分成了两组，并用两个不同的算法处理
 这两种算法是看待同一个问题的两种不同方式，通过恰当地组合（平衡）这两个算法，复杂度由 O(n^2) 降至 O(n√n)
+例子是 https://codeforces.com/problemset/problem/1806/E
 注意：**枚举时要做到不重不漏**
 
 可以从这题上手 https://www.luogu.com.cn/problem/P3396 同 https://codeforces.com/contest/103/problem/D
@@ -32,13 +34,26 @@ LCP16 https://leetcode-cn.com/problems/you-le-yuan-de-you-lan-ji-hua/
 https://codeforces.com/problemset/problem/1039/D
 https://codeforces.com/problemset/problem/1039/E
 大步+小步，有点分段打表的味道 https://codeforces.com/problemset/problem/1619/H
-见下面的 floorDivide https://codeforces.com/problemset/problem/1806/E
+https://codeforces.com/problemset/problem/1806/E
+见下面的 floorDivide https://codeforces.com/problemset/problem/786/C
+四次方根 https://atcoder.jp/contests/abc293/tasks/abc293_f
+https://leetcode.com/discuss/interview-question/3517350/
+- Given a list of pairs {L,R} & an array. 
+  Find out the total number of pairs (i, j) where 
+  (arr[i], arr[j]) should be equal to exactly one of the given Q pairs. And i < j.
+
+自动 O(n√n)
+https://codeforces.com/problemset/problem/1790/F
+
+随机+分块
+https://codeforces.com/contest/1840/problem/G2
 */
 
 // TIPS: n 的整数分拆中，不同数字的个数至多有 O(√n) 种
 
 /* 分散层叠算法 Fractional Cascading
 https://en.wikipedia.org/wiki/Fractional_cascading
+https://www.zhihu.com/question/33776070/answer/59405602
 https://www.luogu.com.cn/blog/DPair2005/fen-san-ceng-die-suan-fa-xue-xi-bi-ji
 https://www.luogu.com.cn/problem/P6466
 */
@@ -47,6 +62,7 @@ https://www.luogu.com.cn/problem/P6466
 分块数据结构
 https://oi-wiki.org/ds/decompose/
 https://oi-wiki.org/ds/block-array/
+Unrolled linked list https://en.wikipedia.org/wiki/Unrolled_linked_list
 【推荐】https://www.luogu.com.cn/blog/220037/Sqrt1
 浅谈基础根号算法——分块 https://www.luogu.com.cn/blog/deco/qian-tan-ji-chu-gen-hao-suan-fa-fen-kuai
 todo https://www.csie.ntu.edu.tw/~sprout/algo2018/ppt_pdf/root_methods.pdf

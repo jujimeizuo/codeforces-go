@@ -8,6 +8,12 @@ import (
 /*
 可视化 https://visualgo.net/zh/heap
 
+[373. 查找和最小的 K 对数字](https://leetcode.cn/problems/find-k-pairs-with-smallest-sums/)
+- 题解 https://leetcode.cn/problems/find-k-pairs-with-smallest-sums/solution/jiang-qing-chu-wei-shi-yao-yi-kai-shi-ya-i0dj/
+[1439. 有序矩阵中的第 k 个最小数组和](https://leetcode.cn/problems/find-the-kth-smallest-sum-of-a-matrix-with-sorted-rows/)
+- 题解 https://leetcode.cn/problems/find-the-kth-smallest-sum-of-a-matrix-with-sorted-rows/solution/san-chong-suan-fa-bao-li-er-fen-da-an-du-k1vd/
+https://atcoder.jp/contests/abc297/tasks/abc297_e
+
 思维·转换
 https://www.luogu.com.cn/problem/P2859
 https://www.luogu.com.cn/problem/P4952 枚举中位数
@@ -36,6 +42,7 @@ JSOI07 建筑抢修 https://www.luogu.com.cn/problem/P4053 LC630 https://leetcod
 用堆来不断修正最优决策 https://codeforces.com/problemset/problem/1428/E
 股票买卖 https://codeforces.com/problemset/problem/865/D
 https://atcoder.jp/contests/abc249/tasks/abc249_f
+前缀和 https://codeforces.com/problemset/problem/1779/C 推荐
 
 区间贪心相关
 最小不相交区间划分数
@@ -52,11 +59,11 @@ https://codeforces.com/problemset/problem/1701/D
 
 type hp struct{ sort.IntSlice }
 
-//func (h hp) Less(i, j int) bool  { return h.IntSlice[i] > h.IntSlice[j] } // 加上这行变成最大堆
-func (h *hp) Push(v interface{}) { h.IntSlice = append(h.IntSlice, v.(int)) }
-func (h *hp) Pop() interface{}   { a := h.IntSlice; v := a[len(a)-1]; h.IntSlice = a[:len(a)-1]; return v }
-func (h *hp) push(v int)         { heap.Push(h, v) }
-func (h *hp) pop() int           { return heap.Pop(h).(int) } // 稍微封装一下，方便使用
+//func (h hp) Less(i, j int) bool { return h.IntSlice[i] > h.IntSlice[j] } // 加上这行变成最大堆
+func (h *hp) Push(v any) { h.IntSlice = append(h.IntSlice, v.(int)) }
+func (h *hp) Pop() any   { a := h.IntSlice; v := a[len(a)-1]; h.IntSlice = a[:len(a)-1]; return v }
+func (h *hp) push(v int) { heap.Push(h, v) }
+func (h *hp) pop() int   { return heap.Pop(h).(int) } // 稍微封装一下，方便使用
 
 // EXTRA: 参考 Python，引入下面两个效率更高的方法（相比调用 push + pop）
 // replace 弹出并返回堆顶，同时将 v 入堆
@@ -83,13 +90,13 @@ func (h *hp) pushPop(v int) int {
 // 自定义类型（int64 可以替换成其余类型）
 type hp64 []int64
 
-func (h hp64) Len() int            { return len(h) }
-func (h hp64) Less(i, j int) bool  { return h[i] < h[j] } // > 为最大堆
-func (h hp64) Swap(i, j int)       { h[i], h[j] = h[j], h[i] }
-func (h *hp64) Push(v interface{}) { *h = append(*h, v.(int64)) }
-func (h *hp64) Pop() interface{}   { a := *h; v := a[len(a)-1]; *h = a[:len(a)-1]; return v }
-func (h *hp64) push(v int64)       { heap.Push(h, v) }
-func (h *hp64) pop() int64         { return heap.Pop(h).(int64) } // 稍微封装一下，方便使用
+func (h hp64) Len() int           { return len(h) }
+func (h hp64) Less(i, j int) bool { return h[i] < h[j] } // > 为最大堆
+func (h hp64) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+func (h *hp64) Push(v any)        { *h = append(*h, v.(int64)) }
+func (h *hp64) Pop() any          { a := *h; v := a[len(a)-1]; *h = a[:len(a)-1]; return v }
+func (h *hp64) push(v int64)      { heap.Push(h, v) }
+func (h *hp64) pop() int64        { return heap.Pop(h).(int64) } // 稍微封装一下，方便使用
 
 //
 
@@ -108,12 +115,40 @@ type mh []*viPair // mh 指 modifiable heap
 func (h mh) Len() int              { return len(h) }
 func (h mh) Less(i, j int) bool    { return h[i].v < h[j].v } // > 为最大堆
 func (h mh) Swap(i, j int)         { h[i], h[j] = h[j], h[i]; h[i].hi = i; h[j].hi = j }
-func (h *mh) Push(v interface{})   { *h = append(*h, v.(*viPair)) }
-func (h *mh) Pop() interface{}     { a := *h; v := a[len(a)-1]; *h = a[:len(a)-1]; return v }
+func (h *mh) Push(v any)           { *h = append(*h, v.(*viPair)) }
+func (h *mh) Pop() any             { a := *h; v := a[len(a)-1]; *h = a[:len(a)-1]; return v }
 func (h *mh) push(v int64) *viPair { p := &viPair{v, len(*h)}; heap.Push(h, p); return p }
 func (h *mh) pop() *viPair         { return heap.Pop(h).(*viPair) }
 func (h *mh) fix(i int)            { heap.Fix(h, i) }
 func (h *mh) remove(i int) *viPair { return heap.Remove(h, i).(*viPair) }
+
+// 另一种实现：懒删除
+// https://codeforces.com/problemset/problem/796/C
+type lazyHeap struct {
+	sort.IntSlice
+	todo map[int]int
+}
+
+//func (h lazyHeap) Less(i, j int) bool { return h.IntSlice[i] > h.IntSlice[j] } // 最大堆
+func (h *lazyHeap) Push(v any) { h.IntSlice = append(h.IntSlice, v.(int)) }
+func (h *lazyHeap) Pop() any   { a := h.IntSlice; v := a[len(a)-1]; h.IntSlice = a[:len(a)-1]; return v }
+func (h *lazyHeap) del(v int)  { h.todo[v]++ }
+func (h *lazyHeap) do() {
+	for h.Len() > 0 && h.todo[h.IntSlice[0]] > 0 {
+		h.todo[h.IntSlice[0]]--
+		heap.Pop(h)
+	}
+}
+func (h *lazyHeap) push(v int) {
+	if h.todo[v] > 0 {
+		h.todo[v]--
+	} else {
+		heap.Push(h, v)
+	}
+}
+func (h *lazyHeap) pop() int    { h.do(); return heap.Pop(h).(int) }
+func (h *lazyHeap) top() int    { h.do(); return h.IntSlice[0] }
+func (h *lazyHeap) empty() bool { h.do(); return len(h.IntSlice) == 0 }
 
 // 对顶堆求动态中位数：medians[i] = a[:i+1] 的中位数
 // https://www.luogu.com.cn/problem/P1168
@@ -175,12 +210,12 @@ type minHp struct {
 	s int // 维护堆中元素之和
 }
 
-func (h minHp) Len() int            { return len(h.a) }
-func (h minHp) Less(i, j int) bool  { return h.a[i].t < h.a[j].t }
-func (h minHp) Swap(i, j int)       { h.a[i], h.a[j] = h.a[j], h.a[i] }
-func (h *minHp) Push(v interface{}) { h.s += v.(pair).t; h.a = append(h.a, v.(pair)) }
-func (h *minHp) Pop() interface{}   { v := h.a[len(h.a)-1]; h.s -= v.t; h.a = h.a[:len(h.a)-1]; return v }
-func (h *minHp) push(v pair)        { heap.Push(h, v) }
+func (h minHp) Len() int           { return len(h.a) }
+func (h minHp) Less(i, j int) bool { return h.a[i].t < h.a[j].t }
+func (h minHp) Swap(i, j int)      { h.a[i], h.a[j] = h.a[j], h.a[i] }
+func (h *minHp) Push(v any)        { h.s += v.(pair).t; h.a = append(h.a, v.(pair)) }
+func (h *minHp) Pop() any          { v := h.a[len(h.a)-1]; h.s -= v.t; h.a = h.a[:len(h.a)-1]; return v }
+func (h *minHp) push(v pair)       { heap.Push(h, v) }
 func (h *minHp) pushPop(v pair) pair {
 	if h.Len() > 0 && v.t > h.a[0].t {
 		h.s += v.t - h.a[0].t
@@ -195,12 +230,12 @@ type maxHp struct {
 	s int
 }
 
-func (h maxHp) Len() int            { return len(h.a) }
-func (h maxHp) Less(i, j int) bool  { return h.a[i].t > h.a[j].t }
-func (h maxHp) Swap(i, j int)       { h.a[i], h.a[j] = h.a[j], h.a[i] }
-func (h *maxHp) Push(v interface{}) { h.s += v.(pair).t; h.a = append(h.a, v.(pair)) }
-func (h *maxHp) Pop() interface{}   { v := h.a[len(h.a)-1]; h.s -= v.t; h.a = h.a[:len(h.a)-1]; return v }
-func (h *maxHp) push(v pair)        { heap.Push(h, v) }
+func (h maxHp) Len() int           { return len(h.a) }
+func (h maxHp) Less(i, j int) bool { return h.a[i].t > h.a[j].t }
+func (h maxHp) Swap(i, j int)      { h.a[i], h.a[j] = h.a[j], h.a[i] }
+func (h *maxHp) Push(v any)        { h.s += v.(pair).t; h.a = append(h.a, v.(pair)) }
+func (h *maxHp) Pop() any          { v := h.a[len(h.a)-1]; h.s -= v.t; h.a = h.a[:len(h.a)-1]; return v }
+func (h *maxHp) push(v pair)       { heap.Push(h, v) }
 func (h *maxHp) pushPop(v pair) pair {
 	if h.Len() > 0 && v.t < h.a[0].t {
 		h.s += v.t - h.a[0].t
