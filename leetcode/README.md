@@ -12,9 +12,11 @@
 ||[15. 三数之和](https://leetcode.cn/problems/3sum/)|[代码](https://leetcode.cn/problems/3sum/solution/shuang-zhi-zhen-xiang-bu-ming-bai-yi-ge-pno55/)|包含两个优化|
 ||[16. 最接近的三数之和](https://leetcode.cn/problems/3sum-closest/)|[代码](https://leetcode.cn/problems/3sum-closest/solution/zui-jie-jin-de-san-shu-zhi-he-by-leetcode-solution/)|*课后作业|
 ||[18. 四数之和](https://leetcode.cn/problems/4sum/)|[代码](https://leetcode.cn/problems/4sum/solution/ji-zhi-you-hua-ji-yu-san-shu-zhi-he-de-z-1f0b/)|*课后作业|
+||[2824. 统计和小于目标的下标对数目](https://leetcode.cn/problems/count-pairs-whose-sum-is-less-than-target/)|[代码](https://leetcode.cn/problems/count-pairs-whose-sum-is-less-than-target/solution/onlogn-pai-xu-shuang-zhi-zhen-by-endless-qk40/)|*课后作业|
+||[611. 有效三角形的个数](https://leetcode.cn/problems/valid-triangle-number/)|[代码](https://leetcode.cn/problems/valid-triangle-number/solution/zhuan-huan-cheng-abcyong-xiang-xiang-shu-1ex3/)|*课后作业|
 |[相向双指针 2](https://www.bilibili.com/video/BV1Qg411q7ia/)|[11. 盛最多水的容器](https://leetcode.cn/problems/container-with-most-water/)|[代码](https://leetcode.cn/problems/container-with-most-water/solutions/1974355/by-endlesscheng-f0xz/)||
 ||[42. 接雨水](https://leetcode.cn/problems/trapping-rain-water/)|[代码](https://leetcode.cn/problems/trapping-rain-water/solutions/1974340/zuo-liao-nbian-huan-bu-hui-yi-ge-shi-pin-ukwm/)|额外讲了**前后缀分解**|
-|[同向双指针](https://www.bilibili.com/video/BV1hd4y1r7Gq/)|[209. 长度最小的子数组](https://leetcode.cn/problems/minimum-size-subarray-sum/)|[代码](https://leetcode.cn/problems/minimum-size-subarray-sum/solution/biao-ti-xia-biao-zong-suan-cuo-qing-kan-k81nh/)||
+|[同向双指针 滑动窗口](https://www.bilibili.com/video/BV1hd4y1r7Gq/)|[209. 长度最小的子数组](https://leetcode.cn/problems/minimum-size-subarray-sum/)|[代码](https://leetcode.cn/problems/minimum-size-subarray-sum/solution/biao-ti-xia-biao-zong-suan-cuo-qing-kan-k81nh/)||
 ||[713. 乘积小于 K 的子数组](https://leetcode.cn/problems/subarray-product-less-than-k/)|[代码](https://leetcode.cn/problems/subarray-product-less-than-k/solution/xia-biao-zong-suan-cuo-qing-kan-zhe-by-e-jebq/)||
 ||[3. 无重复字符的最长子串](https://leetcode.cn/problems/longest-substring-without-repeating-characters/)|[代码](https://leetcode.cn/problems/longest-substring-without-repeating-characters/solution/xia-biao-zong-suan-cuo-qing-kan-zhe-by-e-iaks/)||
 ||[1004. 最大连续 1 的个数 III](https://leetcode.cn/problems/max-consecutive-ones-iii/)|[代码](https://leetcode.cn/problems/max-consecutive-ones-iii/solution/hua-dong-chuang-kou-yi-ge-shi-pin-jiang-yowmi/)|*课后作业|
@@ -45,9 +47,11 @@
 ||[199. 二叉树的右视图](https://leetcode.cn/problems/binary-tree-right-side-view/)|[代码](https://leetcode.cn/problems/binary-tree-right-side-view/solutions/2015061/ru-he-ling-huo-yun-yong-di-gui-lai-kan-s-r1nc/)||
 ||[1026. 节点与其祖先之间的最大差值](https://leetcode.cn/problems/maximum-difference-between-node-and-ancestor/)|[代码](https://leetcode.cn/problems/maximum-difference-between-node-and-ancestor/solution/liang-chong-fang-fa-zi-ding-xiang-xia-zi-wj9v/)|*课后作业|
 ||[1080. 根到叶路径上的不足节点](https://leetcode.cn/problems/insufficient-nodes-in-root-to-leaf-paths/)|[代码](https://leetcode.cn/problems/insufficient-nodes-in-root-to-leaf-paths/solution/jian-ji-xie-fa-diao-yong-zi-shen-pythonj-64lf/)|*课后作业|
+||[1110. 删点成林](https://leetcode.cn/problems/delete-nodes-and-return-forest/)|[代码](https://leetcode.cn/problems/delete-nodes-and-return-forest/solution/he-shi-ji-lu-da-an-pythonjavacgo-by-endl-lpcd/)|*课后作业|
 |[二叉树与递归 - 前序/中序/后序](https://www.bilibili.com/video/BV14G411P7C1/)|[98. 验证二叉搜索树](https://leetcode.cn/problems/validate-binary-search-tree/)|[代码](https://leetcode.cn/problems/validate-binary-search-tree/solutions/2020306/qian-xu-zhong-xu-hou-xu-san-chong-fang-f-yxvh/)|三种方法|
 |[二叉树与递归 - 最近公共祖先](https://www.bilibili.com/video/BV1W44y1Z7AR/)|[236. 二叉树的最近公共祖先](https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/)|[代码](https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/solutions/2023872/fen-lei-tao-lun-luan-ru-ma-yi-ge-shi-pin-2r95/)||
 ||[235. 二叉搜索树的最近公共祖先](https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-search-tree/)|[代码](https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-search-tree/solutions/2023873/zui-jin-gong-gong-zu-xian-yi-ge-shi-pin-8h2zc/)||
+||[1123. 最深叶节点的最近公共祖先](https://leetcode.cn/problems/lowest-common-ancestor-of-deepest-leaves/)|[代码](https://leetcode.cn/problems/lowest-common-ancestor-of-deepest-leaves/solution/liang-chong-di-gui-si-lu-pythonjavacgojs-xxnk/)|*课后作业|
 |[二叉树 - BFS](https://www.bilibili.com/video/BV1hG4y1277i/)|[102. 二叉树的层序遍历](https://leetcode.cn/problems/binary-tree-level-order-traversal/)|[代码](https://leetcode.cn/problems/binary-tree-level-order-traversal/solutions/2049807/bfs-wei-shi-yao-yao-yong-dui-lie-yi-ge-s-xlpz/)|两种写法|
 ||[103. 二叉树的锯齿形层序遍历](https://leetcode.cn/problems/binary-tree-zigzag-level-order-traversal/)|[代码](https://leetcode.cn/problems/binary-tree-zigzag-level-order-traversal/solutions/2049827/bfs-wei-shi-yao-yao-yong-dui-lie-yi-ge-s-xlv3/)|两种写法|
 ||[513. 找树左下角的值](https://leetcode.cn/problems/find-bottom-left-tree-value/)|[代码](https://leetcode.cn/problems/find-bottom-left-tree-value/solutions/2049776/bfs-wei-shi-yao-yao-yong-dui-lie-yi-ge-s-f34y/)||
@@ -71,7 +75,7 @@
 |[状态机 DP](https://www.bilibili.com/video/BV1ho4y1W7QK/)|[122. 买卖股票的最佳时机 II](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-ii/)|[代码](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-ii/solution/shi-pin-jiao-ni-yi-bu-bu-si-kao-dong-tai-o3y4/)||
 ||[309. 最佳买卖股票时机含冷冻期](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-cooldown/)|[代码](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-cooldown/solution/shi-pin-jiao-ni-yi-bu-bu-si-kao-dong-tai-0k0l/)||
 ||[188. 买卖股票的最佳时机 IV](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iv/)|[代码](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iv/solution/shi-pin-jiao-ni-yi-bu-bu-si-kao-dong-tai-kksg/)|变形：恰好/至少|
-|[区间 DP](https://www.bilibili.com/video/BV1ho4y1W7QK/)|[516. 最长回文子序列](https://leetcode.cn/problems/longest-palindromic-subsequence/)|[代码](https://leetcode.cn/problems/longest-palindromic-subsequence/solution/shi-pin-jiao-ni-yi-bu-bu-si-kao-dong-tai-kgkg/)|包含空间优化|
+|[区间 DP](https://www.bilibili.com/video/BV1Gs4y1E7EU/)|[516. 最长回文子序列](https://leetcode.cn/problems/longest-palindromic-subsequence/)|[代码](https://leetcode.cn/problems/longest-palindromic-subsequence/solution/shi-pin-jiao-ni-yi-bu-bu-si-kao-dong-tai-kgkg/)|包含空间优化|
 ||[1039. 多边形三角剖分的最低得分](https://leetcode.cn/problems/minimum-score-triangulation-of-polygon/)|[代码](https://leetcode.cn/problems/minimum-score-triangulation-of-polygon/solution/shi-pin-jiao-ni-yi-bu-bu-si-kao-dong-tai-aty6/)||
 ||[1771. 由子序列构造的最长回文串的长度](https://leetcode.cn/problems/maximize-palindrome-length-from-subsequences/)|[代码](https://leetcode.cn/problems/maximize-palindrome-length-from-subsequences/solution/shi-pin-qiao-miao-zhuan-huan-516-bian-xi-jhrt/)|*课后作业|
 ||[1000. 合并石头的最低成本](https://leetcode.cn/problems/minimum-cost-to-merge-stones/)|[代码](https://leetcode.cn/problems/minimum-cost-to-merge-stones/solution/tu-jie-qu-jian-dpzhuang-tai-she-ji-yu-yo-ppv0/)|*课后作业|
@@ -87,31 +91,12 @@
 
 其它尚未更新的 topic 请看 [每日一题题解精选（已分类）](https://github.com/EndlessCheng/codeforces-go/blob/master/leetcode/SOLUTIONS.md)
 
----
+附：
 
-以下是周赛相关内容。
-
-## 测试工具
-
-支持以下题目类型（点击可查看使用示例）：
-
-- [传统题（实现函数）](biweekly/27/c/c_test.go)
-- [设计题（实现方法）](weekly/182/c/c_test.go)
-- [二叉树](weekly/209/b/b_test.go)
-- [链表](weekly/95/a/a_test.go)
-
-如果觉得麻烦，还可以用 [读文件](weekly/287/c/c_test.go) 的方式测试，对应的文件在同一目录下。
-
-## 代码生成工具
-
-[见此](../copypasta/template/leetcode)
-
-## 周赛
-
-力扣部分题目来源于周赛，从周赛排行榜上可以学习其他选手的解题思路。
-
-国服的周赛始于第 83 场（2018-05-06 09:30），在此之前的周赛只有美服力扣上有（第 1 场周赛始于 2016-08-21）。
-
-[周赛对应题号整理](https://leetcode-cn.com/circle/discuss/KAQoqc/)
-
-[周赛积分算法（ELO）](https://leetcode-cn.com/circle/article/neTUV4/)
+- [从集合论到位运算，常见位运算技巧分类总结！](https://leetcode.cn/circle/discuss/CaOJ45/)
+- [差分数组](https://leetcode.cn/circle/discuss/FfMCgb/)
+- [【图解】二维前缀和](https://leetcode.cn/circle/discuss/UUuRex/)
+- [从周赛中学算法 - 2023·上](https://leetcode.cn/circle/discuss/v2RXSN/)
+- [从周赛中学算法 - 2022·下](https://leetcode.cn/circle/discuss/WR1MJP/)
+- [从周赛中学算法 - 2022·上](https://leetcode.cn/circle/discuss/G0n5iY/)
+- [如何科学上分（科学刷题）？](https://www.bilibili.com/read/cv22332590/)
